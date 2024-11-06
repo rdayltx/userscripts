@@ -37,7 +37,7 @@
 //
 // ============== AMAZON ==============
 // @match         https://www.amazon.com.br/*
-// @exclude-match https://www.amazon.com.br/gp/*
+//         ============= https://www.amazon.com.br/gp/*
 // @exclude-match https://www.amazon.com.br/hz/*
 // @exclude-match https://www.amazon.com.br/kindle-dbs*
 // @exclude-match https://www.amazon.com.br/mn*
