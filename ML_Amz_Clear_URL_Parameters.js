@@ -2,7 +2,7 @@
 // @name          ML, Amz. Clear URL Parameters
 // @namespace     Clear URL Parameters
 // @version       0.5
-// @icon          https://raw.githubusercontent.com/rdayltx/userscript/refs/heads/master/ML_Amz_Clear_URL_Parameters.ico
+// @icon          https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/main//ML_Amz_Clear_URL_Parameters.ico
 // @description   Remove parâmetros desnecessários de URLs de sites especificos
 // @author        DayLight
 //
@@ -56,8 +56,8 @@
 //
 // @run-at        document-start
 // @grant         none
-// @downloadURL   https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ML_Amz_Clear_URL_Parameters.js
-// @updateURL     https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ML_Amz_Clear_URL_Parameters.js
+// @downloadURL   https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/main/ML_Amz_Clear_URL_Parameters.js
+// @updateURL     https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/main/ML_Amz_Clear_URL_Parameters.js
 // ==/UserScript==
 
 (function() {
