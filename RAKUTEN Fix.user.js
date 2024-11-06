@@ -6,7 +6,7 @@
 // @author       DayLight
 // @match        https://pt.anotepad.com/
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/userscripts/refs/heads/master/RAKUTEN Fix.user.js
+// @downloadURL  https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/RAKUTEN Fix.user.js
 // @updateURL    https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/RAKUTEN Fix.user.js
 // ==/UserScript==
 
