@@ -37,7 +37,6 @@
 //
 // ============== AMAZON ==============
 // @match         https://www.amazon.com.br/*
-//         ============= https://www.amazon.com.br/gp/*
 // @exclude-match https://www.amazon.com.br/hz/*
 // @exclude-match https://www.amazon.com.br/kindle-dbs*
 // @exclude-match https://www.amazon.com.br/mn*
@@ -53,6 +52,7 @@
 // @match         *://www.paguemenos.com.br/*
 //
 // @match         https://pt.anotepad.com/
+// @match         *://www.nike.com.br/*
 //
 // @run-at        document-start
 // @grant         none
@@ -182,7 +182,7 @@
     }
 
       // Executa a função correspondente ao site atual
-    if (window.location.hostname === "www.amazon.com.br", "www.mercadolivre.com.br", "www.paguemenos.com.br") {
+    if (window.location.hostname === "www.amazon.com.br", "www.mercadolivre.com.br", "www.paguemenos.com.br", "www.nike.com.br") {
         modifyML_AM_PM_URL();
     }/* else if (window.location.hostname === "www.magazinevoce.com.br") {
         modifyMagazineVoceURL();
@@ -201,6 +201,6 @@
             toUpperLowerCase();
         }
     });
-    
+
 
 })();
