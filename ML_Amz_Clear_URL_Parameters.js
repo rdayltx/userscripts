@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          ML, Amz. Clear URL Parameters
 // @namespace     Clear URL Parameters
-// @version       0.7
+// @version       0.8
 // @icon          https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ML_Amz_Clear_URL_Parameters.ico
 // @description   Remove parâmetros desnecessários de URLs de sites especificos
 // @author        DayLight
@@ -38,6 +38,7 @@
 // ============== AMAZON ==============
 // @match         https://www.amazon.com.br/*
 // @exclude-match https://www.amazon.com.br/hz/*
+// @exclude-match https://www.amazon.com.br/progress-tracker/*
 // @exclude-match https://www.amazon.com.br/kindle-dbs*
 // @exclude-match https://www.amazon.com.br/mn*
 // @exclude-match https://www.amazon.com.br/myk*
