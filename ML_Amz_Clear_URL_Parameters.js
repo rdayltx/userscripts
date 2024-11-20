@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          ML, Amz. Clear URL Parameters
 // @namespace     Clear URL Parameters
-// @version       1.1
+// @version       1.2
 // @icon          https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ML_Amz_Clear_URL_Parameters.ico
 // @description   Remove parâmetros desnecessários de URLs de sites especificos
 // @author        DayLight
@@ -94,7 +94,7 @@
     div.style.padding = "20px";
     div.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
     div.style.width = "300px";
-    div.style.textAlign = "center";
+    div.style.textAlign = "left";
     div.style.fontFamily = "Arial, sans-serif";
 
     const titulo = document.createElement("h2");
