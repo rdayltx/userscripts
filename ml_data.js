@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Métricas ML para Planilha
 // @namespace    rodrigodev.com.br
-// @version      1.1
+// @version      1.2
 // @description  Extrai dados da tabela e exporta para um arquivo XLSX
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=mercadolivre.com.br
 // @match        https://www.mercadolivre.com.br/afiliados/*
@@ -23,8 +23,55 @@ function main() {
   let allData = [];
   let currentPage = 0;
 
+  // Função para exibir indicador de carregamento
+  function showLoading(message) {
+    let loadingDiv = document.getElementById("loadingIndicator");
+    if (!loadingDiv) {
+      loadingDiv = document.createElement("div");
+      loadingDiv.id = "loadingIndicator";
+      loadingDiv.style.position = "fixed";
+      loadingDiv.style.top = "50%";
+      loadingDiv.style.left = "50%";
+      loadingDiv.style.transform = "translate(-50%, -50%)";
+      loadingDiv.style.padding = "20px";
+      loadingDiv.style.backgroundColor = "#000";
+      loadingDiv.style.color = "#fff";
+      loadingDiv.style.zIndex = "10000";
+      loadingDiv.style.borderRadius = "8px";
+      document.body.appendChild(loadingDiv);
+    }
+    loadingDiv.textContent = message;
+  }
+
+  // Função para ocultar o indicador de carregamento
+  function hideLoading() {
+    const loadingDiv = document.getElementById("loadingIndicator");
+    if (loadingDiv) loadingDiv.remove();
+  }
+
+  // Função para aguardar um elemento específico
+  function waitForElement(selector, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        const element = document.querySelector(selector);
+        if (element) {
+          clearInterval(interval);
+          resolve(element);
+        }
+      }, 100);
+      setTimeout(() => {
+        clearInterval(interval);
+        reject(new Error("Elemento não encontrado no tempo limite."));
+      }, timeout);
+    });
+  }
+
   function scrapeTable() {
     const table = document.querySelector(".andes-table.general-orders-table");
+    if (!table) {
+      alert("Tabela não encontrada. Verifique se está na página correta.");
+      return;
+    }
 
     // Extrai cabeçalhos (apenas na primeira página)
     if (currentPage === 0) {
@@ -36,9 +83,7 @@ function main() {
     }
 
     // Extrai linhas de dados
-    const rows = table
-      ? table.querySelectorAll(".andes-table__row.orders-table__row")
-      : [];
+    const rows = table.querySelectorAll(".andes-table__row.orders-table__row");
     const pageData = [];
     rows.forEach((row) => {
       const rowData = [];
@@ -52,33 +97,36 @@ function main() {
   }
 
   async function goToNextPage() {
-    // Seleciona o botão de próxima página
-    const nextButton = document.querySelector(
-      ".andes-pagination__button--next"
-    );
-
-    // Verifica se o botão de próxima página está desativado
-    if (
-      nextButton &&
-      !nextButton.classList.contains("andes-pagination__button--disabled")
-    ) {
-      nextButton.querySelector("a").click();
-      await new Promise((resolve) => setTimeout(resolve, 4000)); // Espera o carregamento da página
-      scrapeTable();
-      currentPage++;
-      goToNextPage();
-    } else {
-      exportToXLSX();
+    try {
+      const nextButton = document.querySelector(
+        ".andes-pagination__button--next"
+      );
+      if (
+        nextButton &&
+        !nextButton.classList.contains("andes-pagination__button--disabled")
+      ) {
+        nextButton.querySelector("a").click();
+        await new Promise((resolve) => setTimeout(resolve, 3000)); // Espera para o carregamento
+        scrapeTable();
+        await goToNextPage(); // Chama recursivamente até não haver próxima página
+      } else {
+        exportToXLSX();
+      }
+    } catch (error) {
+      alert(`Erro ao navegar para a próxima página: ${error.message}`);
     }
   }
 
   function exportToXLSX() {
+    const fileName =
+      prompt("Digite o nome do arquivo:", "tabela_dados.xlsx") ||
+      "tabela_dados.xlsx";
     const worksheet = XLSX.utils.aoa_to_sheet(allData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Tabela");
 
-    XLSX.writeFile(workbook, "tabela_dados.xlsx");
-    alert(`Exportação concluída!`);
+    XLSX.writeFile(workbook, fileName);
+    alert("Exportação concluída!");
   }
 
   // Adiciona botão para iniciar a coleta
@@ -88,10 +136,23 @@ function main() {
   button.style.top = "10px";
   button.style.right = "10px";
   button.style.zIndex = "9999";
-  button.onclick = () => {
+  button.style.padding = "10px";
+  button.style.backgroundColor = "#007BFF";
+  button.style.color = "#fff";
+  button.style.border = "none";
+  button.style.borderRadius = "5px";
+  button.style.cursor = "pointer";
+  button.onclick = async () => {
     allData = []; // Reseta dados
-    scrapeTable();
-    goToNextPage();
+    showLoading("Iniciando extração...");
+    try {
+      scrapeTable();
+      await goToNextPage();
+    } catch (error) {
+      alert(`Erro durante a extração: ${error.message}`);
+    } finally {
+      hideLoading();
+    }
   };
   document.body.appendChild(button);
 }
