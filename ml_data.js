@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Métricas ML para Planilha
 // @namespace    rodrigodev.com.br
-// @version      1.2
+// @version      1.5
 // @description  Extrai dados da tabela e exporta para um arquivo XLSX
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=mercadolivre.com.br
 // @match        https://www.mercadolivre.com.br/afiliados/*
@@ -121,10 +121,64 @@ function main() {
     const fileName =
       prompt("Digite o nome do arquivo:", "tabela_dados.xlsx") ||
       "tabela_dados.xlsx";
-    const worksheet = XLSX.utils.aoa_to_sheet(allData);
+
+    // Processa os dados para remover "R$" e configurar colunas como números
+    const processedData = allData.map((row, index) => {
+      if (index === 0) return row; // Mantém os cabeçalhos inalterados
+
+      // Remove "R$" e converte a coluna "D" (índice 3) em número
+      if (row[3]) {
+        const numericValue = parseFloat(
+          row[3].replace(/^R\$ ?/, "").replace(",", ".")
+        );
+        row[3] = !isNaN(numericValue) ? numericValue : row[3]; // Converte para número ou mantém o texto
+      }
+
+      // Converte a coluna "C" (índice 2) em número inteiro, se aplicável
+      if (row[2]) {
+        const intValue = parseInt(row[2], 10);
+        row[2] = !isNaN(intValue) ? intValue : row[2]; // Converte para inteiro ou mantém o texto
+      }
+
+      return row;
+    });
+
+    // Cria a planilha a partir dos dados processados
+    const worksheet = XLSX.utils.aoa_to_sheet(processedData);
+
+    // Formata células das colunas "C" e "D" como números
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+      // Pula os cabeçalhos (linha 0)
+      const colC = XLSX.utils.encode_cell({ r: R, c: 2 }); // Coluna "C" (índice 2)
+      const colD = XLSX.utils.encode_cell({ r: R, c: 3 }); // Coluna "D" (índice 3)
+
+      // Define as células como número, se aplicável
+      if (worksheet[colC] && typeof worksheet[colC].v === "number") {
+        worksheet[colC].t = "n"; // Tipo "n" para números
+      }
+      if (worksheet[colD] && typeof worksheet[colD].v === "number") {
+        worksheet[colD].t = "n"; // Tipo "n" para números
+      }
+    }
+
+    // Adiciona largura automática e largura fixa para a coluna "B"
+    const colWidths = processedData[0].map((_, index) => {
+      if (index === 1) return { width: 50 }; // Define largura fixa para a coluna "B" (índice 1)
+      return { width: 15 }; // Largura padrão para outras colunas
+    });
+    worksheet["!cols"] = colWidths;
+
+    // Adiciona filtros automáticos
+    worksheet["!autofilter"] = {
+      ref: XLSX.utils.encode_range(range),
+    };
+
+    // Cria o workbook e adiciona a planilha
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Tabela");
 
+    // Salva o arquivo Excel
     XLSX.writeFile(workbook, fileName);
     alert("Exportação concluída!");
   }
@@ -144,7 +198,7 @@ function main() {
   button.style.cursor = "pointer";
   button.onclick = async () => {
     allData = []; // Reseta dados
-    showLoading("Iniciando extração...");
+    showLoading("Extraindo dados...");
     try {
       scrapeTable();
       await goToNextPage();
