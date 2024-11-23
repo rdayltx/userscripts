@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Métricas ML para Planilha
 // @namespace    rodrigodev.com.br
-// @version      1.5
+// @author       DayLight
+// @version      1.7
 // @description  Extrai dados da tabela e exporta para um arquivo XLSX
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=mercadolivre.com.br
 // @match        https://www.mercadolivre.com.br/afiliados/*
 // @grant        none
-// @downloadURL   https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ml_data.js
-// @updateURL     https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ml_data.js
+// @downloadURL  https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ml_data.js
+// @updateURL    https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ml_data.js
 // ==/UserScript==
 
 // Carrega a biblioteca SheetJS (XLSX.js)
@@ -77,7 +78,12 @@ function main() {
     if (currentPage === 0) {
       const headers = [];
       const headerCells = table.querySelectorAll("thead.andes-table__head th");
-      headerCells.forEach((header) => headers.push(header.textContent.trim()));
+      headerCells.forEach((header, index) => {
+        if (index !== 0 && index !== 3) {
+          // Ignora colunas A (índice 0) e C (índice 3)
+          headers.push(header.textContent.trim());
+        }
+      });
       allData.push(headers); // Adiciona os cabeçalhos como primeira linha na planilha
       currentPage = 1;
     }
@@ -87,9 +93,12 @@ function main() {
     const pageData = [];
     rows.forEach((row) => {
       const rowData = [];
-      row
-        .querySelectorAll("td")
-        .forEach((cell) => rowData.push(cell.textContent.trim()));
+      row.querySelectorAll("td").forEach((cell, index) => {
+        if (index !== 0 && index !== 3) {
+          // Ignora colunas A (índice 0) e D (índice 3)
+          rowData.push(cell.textContent.trim());
+        }
+      });
       pageData.push(rowData);
     });
 
@@ -118,26 +127,19 @@ function main() {
   }
 
   function exportToXLSX() {
-    const fileName =
-      prompt("Digite o nome do arquivo:", "tabela_dados.xlsx") ||
-      "tabela_dados.xlsx";
+    const date = new Date();
+    const day = date.getDate().toString().padStart(2, "0"); // Adiciona zero à esquerda se necessário
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth retorna de 0 a 11
+    const fileName = `Métricas_ML-${day}-${month}.xlsx`;
 
     // Processa os dados para remover "R$" e configurar colunas como números
     const processedData = allData.map((row, index) => {
       if (index === 0) return row; // Mantém os cabeçalhos inalterados
 
-      // Remove "R$" e converte a coluna "D" (índice 3) em número
-      if (row[3]) {
-        const numericValue = parseFloat(
-          row[3].replace(/^R\$ ?/, "").replace(",", ".")
-        );
-        row[3] = !isNaN(numericValue) ? numericValue : row[3]; // Converte para número ou mantém o texto
-      }
-
-      // Converte a coluna "C" (índice 2) em número inteiro, se aplicável
-      if (row[2]) {
-        const intValue = parseInt(row[2], 10);
-        row[2] = !isNaN(intValue) ? intValue : row[2]; // Converte para inteiro ou mantém o texto
+      // Converte a coluna "B" (índice 1) em número inteiro, se aplicável
+      if (row[1]) {
+        const intValue = parseInt(row[1], 10);
+        row[1] = !isNaN(intValue) ? intValue : row[1]; // Converte para inteiro ou mantém o texto
       }
 
       return row;
@@ -146,26 +148,22 @@ function main() {
     // Cria a planilha a partir dos dados processados
     const worksheet = XLSX.utils.aoa_to_sheet(processedData);
 
-    // Formata células das colunas "C" e "D" como números
+    // Formata células das coluna "B" como números
     const range = XLSX.utils.decode_range(worksheet["!ref"]);
     for (let R = range.s.r + 1; R <= range.e.r; ++R) {
       // Pula os cabeçalhos (linha 0)
-      const colC = XLSX.utils.encode_cell({ r: R, c: 2 }); // Coluna "C" (índice 2)
-      const colD = XLSX.utils.encode_cell({ r: R, c: 3 }); // Coluna "D" (índice 3)
+      const colC = XLSX.utils.encode_cell({ r: R, c: 1 }); // Coluna "B" (índice 1)
 
       // Define as células como número, se aplicável
       if (worksheet[colC] && typeof worksheet[colC].v === "number") {
         worksheet[colC].t = "n"; // Tipo "n" para números
       }
-      if (worksheet[colD] && typeof worksheet[colD].v === "number") {
-        worksheet[colD].t = "n"; // Tipo "n" para números
-      }
     }
 
-    // Adiciona largura automática e largura fixa para a coluna "B"
+    // Adiciona largura automática e largura fixa para a coluna "A"
     const colWidths = processedData[0].map((_, index) => {
-      if (index === 1) return { width: 50 }; // Define largura fixa para a coluna "B" (índice 1)
-      return { width: 15 }; // Largura padrão para outras colunas
+      if (index === 0) return { width: 80 }; // Define largura fixa para a coluna "A" (índice 0)
+      return { width: 18 }; // Largura padrão para outras colunas
     });
     worksheet["!cols"] = colWidths;
 
