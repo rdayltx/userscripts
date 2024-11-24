@@ -2,7 +2,7 @@
 // @name         Métricas ML para Planilha
 // @namespace    rodrigodev.com.br
 // @author       DayLight
-// @version      1.7
+// @version      1.8
 // @description  Extrai dados da tabela e exporta para um arquivo XLSX
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=mercadolivre.com.br
 // @match        https://www.mercadolivre.com.br/afiliados/*
@@ -130,7 +130,7 @@ function main() {
     const date = new Date();
     const day = date.getDate().toString().padStart(2, "0"); // Adiciona zero à esquerda se necessário
     const month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth retorna de 0 a 11
-    const fileName = `Métricas_ML-${day}-${month}.xlsx`;
+    const fileName = `Métricas_ML_${day}-${month}.xlsx`;
 
     // Processa os dados para remover "R$" e configurar colunas como números
     const processedData = allData.map((row, index) => {
