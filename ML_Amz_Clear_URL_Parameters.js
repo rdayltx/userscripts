@@ -68,7 +68,8 @@
 // ==/UserScript==
 
 (function () {
-    "use strict";
+
+  "use strict";
   
     // Variáveis de configuração
     const mlAtiva = GM_getValue("configAtivaML", false);
@@ -457,3 +458,263 @@
     }
   })();
   
+=======
+  "use strict";
+
+  // Variáveis de configuração
+  const mlAtiva = GM_getValue("configAtivaML", false);
+  const amzAtiva = GM_getValue("configAtivaAMZ", false);
+  const paguemenosAtiva = GM_getValue("configAtivaPM", false);
+  const nikeAtiva = GM_getValue("configAtivaNike", false);
+  const terabyteAtiva = GM_getValue("configAtivaTB", false);
+  const magazinevcAtiva = GM_getValue("configAtivaMV", true);
+  const anotepadAtiva = GM_getValue("configAtivaAP", false);
+
+  // Função para criar a interface de configurações
+  function criarInterface() {
+    if (document.querySelector("#config-panel")) return;
+
+    const div = document.createElement("div");
+    div.id = "config-panel";
+    div.style.position = "fixed";
+    div.style.top = "50%";
+    div.style.left = "50%";
+    div.style.transform = "translate(-50%, -50%)";
+    div.style.zIndex = "10000";
+    div.style.background = "white";
+    div.style.border = "2px solid #ccc";
+    div.style.borderRadius = "10px";
+    div.style.padding = "20px";
+    div.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+    div.style.width = "300px";
+    div.style.textAlign = "left";
+    div.style.fontFamily = "Arial, sans-serif";
+
+    const titulo = document.createElement("h2");
+    titulo.innerText = "Configurações";
+    div.appendChild(titulo);
+
+    // Criar um item de configuração para cada site
+    const configs = [
+      { id: "configAtivaML", label: "Mercado Livre", value: mlAtiva },
+      { id: "configAtivaAMZ", label: "Amazon", value: amzAtiva },
+      { id: "configAtivaPM", label: "Pague Menos", value: paguemenosAtiva },
+      { id: "configAtivaNike", label: "Nike", value: nikeAtiva },
+      { id: "configAtivaTB", label: "Terabyte", value: terabyteAtiva },
+      { id: "configAtivaMV", label: "Magazine Você", value: magazinevcAtiva },
+      { id: "configAtivaAP", label: "Anotepad", value: anotepadAtiva },
+    ];
+
+    configs.forEach(({ id, label, value }) => {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = id;
+      checkbox.checked = value;
+
+      const labelElement = document.createElement("label");
+      labelElement.htmlFor = id;
+      labelElement.innerText = ` ${label}`;
+      labelElement.style.marginLeft = "5px";
+
+      checkbox.addEventListener("change", () => {
+        GM_setValue(id, checkbox.checked);
+        /*    alert(
+          `${label} agora está: ${checkbox.checked ? "Ativado" : "Desativado"}`
+        );*/
+      });
+
+      div.appendChild(checkbox);
+      div.appendChild(labelElement);
+      div.appendChild(document.createElement("br"));
+    });
+
+    const fechar = document.createElement("button");
+    fechar.innerText = "Fechar";
+    fechar.style.marginTop = "20px";
+    fechar.style.padding = "10px 20px";
+    fechar.style.border = "none";
+    fechar.style.borderRadius = "5px";
+    fechar.style.background = "#007BFF";
+    fechar.style.color = "white";
+    fechar.style.cursor = "pointer";
+
+    fechar.addEventListener("click", () => {
+      div.remove();
+    });
+
+    div.appendChild(fechar);
+    document.body.appendChild(div);
+  }
+
+  GM_registerMenuCommand("Abrir Configurações", criarInterface);
+
+  // Função para modificar a URL nos sites Amazon, Mercado Livre e Paguemenos
+  function modifyML_AM_PM_URL() {
+    // Pega a URL atual
+    let url = window.location.href;
+
+    // Procura o primeiro "#" ou "?" na URL e remove tudo após ele
+    let cleanedUrl = url.split("#")[0].split("?")[0];
+
+    // Se a URL foi alterada, redireciona para a URL limpa
+    if (url !== cleanedUrl) {
+      window.location.replace(cleanedUrl);
+    }
+  }
+  // Função para modificar a URL no site Magazine Você
+  function modifyMagazineVoceURL() {
+    // Nome que queremos substituir na URL
+    const novoNome = "pobredasofertas";
+
+    // Pega a URL atual
+    const urlAtual = window.location.href;
+
+    // Expressão regular para capturar o nome atual na URL
+    const regex = /(https:\/\/www\.magazinevoce\.com\.br\/)([^\/]+)(\/.*)/;
+
+    // Substitui pelo novo nome, se o padrão for encontrado
+    const novaUrl = urlAtual.replace(regex, `$1${novoNome}$3`);
+
+    // Redireciona para a nova URL, caso tenha sido alterada
+    if (novaUrl !== urlAtual) {
+      window.location.href = novaUrl;
+    }
+  }
+  // Função para modificar a URL no site Terabyte
+  function modifyTerabyteURL() {
+    const url = new URL(window.location.href);
+    const searchParams = url.searchParams;
+
+    // Verifica se existe o parâmetro 'p'
+    if (searchParams.has("p")) {
+      // Verifica se o valor de 'p' é diferente de '1449840'
+      if (searchParams.get("p") !== "1449840") {
+        // Altera o valor do parâmetro 'p' para '1449840'
+        searchParams.set("p", "1449840");
+        // Atualiza a URL com o novo parâmetro
+        window.location.href = url.toString();
+      }
+    } else {
+      // Se o parâmetro 'p' não existe, adiciona-o com o valor '1449840'
+      searchParams.append("p", "1449840");
+      // Atualiza a URL com o novo parâmetro
+      window.location.href = url.toString();
+    }
+  }
+
+  function toUpperLowerCase() {
+    // Função para criar um botão
+    function createButton(label, onClick) {
+      const button = document.createElement("button");
+      button.innerText = label;
+      button.style.padding = "5px 8px";
+      button.style.backgroundColor = "black";
+      button.style.color = "white";
+      button.style.border = "none";
+      button.style.borderRadius = "5px";
+      button.style.cursor = "pointer";
+      button.style.marginRight = "5px"; // Espaçamento entre os botões
+      button.addEventListener("click", onClick);
+      return button;
+    }
+
+    // Adiciona os botões ao DOM
+    const textareaContainer = document.querySelector(".col-sm-12");
+    if (textareaContainer) {
+      textareaContainer.style.position = "relative";
+
+      // Cria um contêiner para os botões
+      const buttonContainer = document.createElement("div");
+      buttonContainer.style.display = "flex"; // Flexbox para alinhar os botões lado a lado
+      buttonContainer.style.marginBottom = "10px"; // Espaçamento abaixo dos botões
+
+      const uppercaseButton = createButton("B", () => {
+        const textarea = document.getElementById("edit_textarea");
+        const text = textarea.value;
+
+        // Seleciona a primeira linha
+        const firstLineEndIndex =
+          text.indexOf("\n") !== -1 ? text.indexOf("\n") : text.length;
+        const firstLine = text.slice(0, firstLineEndIndex);
+
+        // Transforma a primeira linha em maiúsculo
+        const uppercaseFirstLine = firstLine.toUpperCase();
+
+        // Atualiza o conteúdo do textarea
+        textarea.value = uppercaseFirstLine + text.slice(firstLineEndIndex);
+      });
+
+      const lowercaseButton = createButton("b", () => {
+        const textarea = document.getElementById("edit_textarea");
+        const text = textarea.value;
+
+        // Seleciona a primeira linha
+        const firstLineEndIndex =
+          text.indexOf("\n") !== -1 ? text.indexOf("\n") : text.length;
+        const firstLine = text.slice(0, firstLineEndIndex);
+
+        // Transforma a primeira linha em minúsculo
+        const lowercaseFirstLine = firstLine.toLowerCase();
+
+        // Atualiza o conteúdo do textarea
+        textarea.value = lowercaseFirstLine + text.slice(firstLineEndIndex);
+      });
+
+      // Adiciona os botões ao contêiner
+      buttonContainer.appendChild(uppercaseButton);
+      buttonContainer.appendChild(lowercaseButton);
+
+      // Insere o contêiner de botões antes do textarea
+      textareaContainer.insertBefore(
+        buttonContainer,
+        textareaContainer.firstChild
+      );
+    }
+  }
+
+  // Executa a função correspondente ao site atual
+  if (amzAtiva) {
+    if (window.location.hostname === "www.amazon.com.br") {
+      modifyML_AM_PM_URL();
+    }
+  }
+
+  if (mlAtiva) {
+    if (window.location.hostname === "www.mercadolivre.com.br") {
+      modifyML_AM_PM_URL();
+    }
+  }
+
+  if (paguemenosAtiva) {
+    if (window.location.hostname === "www.paguemenos.com.br") {
+      modifyML_AM_PM_URL();
+    }
+  }
+
+  if (nikeAtiva) {
+    if (window.location.hostname === "www.nike.com.br") {
+      modifyML_AM_PM_URL();
+    }
+  }
+
+  if (terabyteAtiva) {
+    if (window.location.hostname === "www.terabyteshop.com.br") {
+      modifyTerabyteURL();
+    }
+  }
+  if (magazinevcAtiva) {
+    window.addEventListener("DOMContentLoaded", function () {
+      if (window.location.hostname === "www.magazinevoce.com.br") {
+        modifyMagazineVoceURL();
+      }
+    });
+  }
+
+  if (anotepadAtiva) {
+    window.addEventListener("DOMContentLoaded", function () {
+      if (window.location.hostname === "pt.anotepad.com") {
+        toUpperLowerCase();
+      }
+    });
+  }
+})();
