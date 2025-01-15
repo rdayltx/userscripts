@@ -1,11 +1,13 @@
 // ==UserScript==
-// @name         Limpar Campo URL
-// @namespace    Limpar Campo URL
-// @version      1.0
+// @name         ShortenerEnhancement
+// @namespace    ShortenerEnhancement
+// @version      1.5
 // @description  Limpa automaticamente o campo URL ao recarregar a página
 // @author       DayLight
 // @match        https://pobres.com.br/url/*
 // @grant        none
+// @downloadURL   https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ShortenerEnhancement.js
+// @updateURL     https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ShortenerEnhancement.js
 // ==/UserScript==
 
 (function() {
