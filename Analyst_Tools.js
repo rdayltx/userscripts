@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Scripts do Pobre
 // @namespace     Pobre's Toolbox
-// @version       2.1
+// @version       2.2
 // @icon          https://raw.githubusercontent.com/rdayltx/userscripts/master/pobre_tools.ico
 // @description   Ferramentas do analista
 // @author        DayLight
@@ -70,35 +70,35 @@
 // ==/UserScript==
 
 (function () {
-    "use strict";
+  "use strict";
 
-    // Variáveis de configuração
-    const configDefaults = {
-        'configAtivaML': false,     //  Remover UTM Mercado Livre
-        'configAtivaAMZ': false,    //  Remover UTM Amazon
-        'configAtivaPM': false,     //  Remover UTM Paguemenos
-        'configAtivaNike': false,   //  Remover UTM Nike
-        'configAtivaTB': false,     //  Remover UTM Terabyte
-        'configAtivaMV': true,      //  Redirecionar Magalu para o Pobre
-        'configAtivaMagaluF': true, //  Botão remover Frete Magalu
-        'configAtivaAP': false,     //  Botões maiusculo e minusculo no Anotepad
-        'configAtivaAdS': true,     //  Busca avançada Relatório Amazon
-        'configAtivaAS': true,       //  Busca data Relatórios Amazon
-        'configAtivaMLrel': false   //  Exporta Relatório Mercado Livre
-    };
+  // Variáveis de configuração
+  const configDefaults = {
+    configAtivaML: false, //  Remover UTM Mercado Livre
+    configAtivaAMZ: false, //  Remover UTM Amazon
+    configAtivaPM: false, //  Remover UTM Paguemenos
+    configAtivaNike: false, //  Remover UTM Nike
+    configAtivaTB: false, //  Remover UTM Terabyte
+    configAtivaMV: true, //  Redirecionar Magalu para o Pobre
+    configAtivaMagaluF: true, //  Botão remover Frete Magalu
+    configAtivaAP: false, //  Botões maiusculo e minusculo no Anotepad
+    configAtivaAdS: true, //  Busca avançada Relatório Amazon
+    configAtivaAS: true, //  Busca data Relatórios Amazon
+    configAtivaMLrel: false, //  Exporta Relatório Mercado Livre
+  };
 
-    // Retrieve or initialize configurations
-    const getConfig = (key) => GM_getValue(key, configDefaults[key]);
+  // Retrieve or initialize configurations
+  const getConfig = (key) => GM_getValue(key, configDefaults[key]);
 
-    // Function to create the configuration interface
-    function criarInterface() {
-        // Prevent multiple instances
-        if (document.getElementById("config-panel")) return;
+  // Function to create the configuration interface
+  function criarInterface() {
+    // Prevent multiple instances
+    if (document.getElementById("config-panel")) return;
 
-        // Create main container
-        const div = document.createElement("div");
-        div.id = "config-panel";
-        div.style.cssText = `
+    // Create main container
+    const div = document.createElement("div");
+    div.id = "config-panel";
+    div.style.cssText = `
             position: fixed;
             top: 50%;
             left: 50%;
@@ -115,44 +115,44 @@
             font-family: 'Arial', sans-serif;
         `;
 
-        // Title
-        const titulo = document.createElement("h2");
-        titulo.innerText = "Configurações do Script";
-        titulo.style.cssText = `
+    // Title
+    const titulo = document.createElement("h2");
+    titulo.innerText = "Configurações do Script";
+    titulo.style.cssText = `
             color: #2c3e50;
             text-align: center;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
             margin-bottom: 15px;
         `;
-        div.appendChild(titulo);
+    div.appendChild(titulo);
 
-        // Configuration sites
-        const configs = [
-            { id: "configAtivaML", label: "Remover UTM Mercado Livre" },
-            { id: "configAtivaAMZ", label: "Remover UTM Amazon" },
-            { id: "configAtivaPM", label: "Remover UTM Pague Menos" },
-            { id: "configAtivaNike", label: "Remover UTM Nike" },
-            { id: "configAtivaTB", label: "Remover UTM Terabyte" },
-            { id: "configAtivaMV", label: "Redirecionar para o Pobre Magalu" },
-            { id: "configAtivaMagaluF", label: "Remover Frete Magalu" },
-            { id: "configAtivaAP", label: "Text Anotepad" },
-            { id: "configAtivaAdS", label: "Definir data Amazon Associates" },
-            { id: "configAtivaAS", label: "Busca avançada Amazon Associates" },
-            { id: "configAtivaMLrel", label: "Exporta Relatório Mercado Livre" }
-        ];
+    // Configuration sites
+    const configs = [
+      { id: "configAtivaML", label: "Remover UTM Mercado Livre" },
+      { id: "configAtivaAMZ", label: "Remover UTM Amazon" },
+      { id: "configAtivaPM", label: "Remover UTM Pague Menos" },
+      { id: "configAtivaNike", label: "Remover UTM Nike" },
+      { id: "configAtivaTB", label: "Remover UTM Terabyte" },
+      { id: "configAtivaMV", label: "Redirecionar para o Pobre Magalu" },
+      { id: "configAtivaMagaluF", label: "Remover Frete Magalu" },
+      { id: "configAtivaAP", label: "Text Anotepad" },
+      { id: "configAtivaAdS", label: "Definir data Amazon Associates" },
+      { id: "configAtivaAS", label: "Busca avançada Amazon Associates" },
+      { id: "configAtivaMLrel", label: "Exporta Relatório Mercado Livre" },
+    ];
 
-        // Create configuration section
-        const configContainer = document.createElement("div");
-        configContainer.style.cssText = `
+    // Create configuration section
+    const configContainer = document.createElement("div");
+    configContainer.style.cssText = `
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
         `;
 
-        configs.forEach(({ id, label }) => {
-            const configWrapper = document.createElement("div");
-            configWrapper.style.cssText = `
+    configs.forEach(({ id, label }) => {
+      const configWrapper = document.createElement("div");
+      configWrapper.style.cssText = `
                 display: flex;
                 align-items: center;
                 background: white;
@@ -161,33 +161,35 @@
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             `;
 
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.id = id;
-            checkbox.checked = getConfig(id);
-            checkbox.style.cssText = `
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = id;
+      checkbox.checked = getConfig(id);
+      checkbox.style.cssText = `
                 margin-right: 10px;
                 cursor: pointer;
             `;
 
-            const labelElement = document.createElement("label");
-            labelElement.htmlFor = id;
-            labelElement.innerText = label;
-            labelElement.style.cssText = `
+      const labelElement = document.createElement("label");
+      labelElement.htmlFor = id;
+      labelElement.innerText = label;
+      labelElement.style.cssText = `
                 flex-grow: 1;
                 cursor: pointer;
             `;
 
-            checkbox.addEventListener("change", () => {
-                GM_setValue(id, checkbox.checked);
-                showToast(`${label} agora está: ${checkbox.checked ? "Ativado" : "Desativado"}`);
-            });
-            
-            // Função para exibir um toast
-            function showToast(message) {
-                let toast = document.createElement("div");
-                toast.innerText = message;
-                toast.style.cssText = `
+      checkbox.addEventListener("change", () => {
+        GM_setValue(id, checkbox.checked);
+        showToast(
+          `${label} agora está: ${checkbox.checked ? "Ativado" : "Desativado"}`
+        );
+      });
+
+      // Função para exibir um toast
+      function showToast(message) {
+        let toast = document.createElement("div");
+        toast.innerText = message;
+        toast.style.cssText = `
                     position: fixed;
                     bottom: 20px;
                     left: 50%;
@@ -201,28 +203,27 @@
                     opacity: 1;
                     transition: opacity 0.5s ease-in-out;
                 `;
-                
-                document.body.appendChild(toast);
-            
-                // Remover após 2 segundos
-                setTimeout(() => {
-                    toast.style.opacity = "0";
-                    setTimeout(() => toast.remove(), 500);
-                }, 2000);
-            }
-            
 
-            configWrapper.appendChild(checkbox);
-            configWrapper.appendChild(labelElement);
-            configContainer.appendChild(configWrapper);
-        });
+        document.body.appendChild(toast);
 
-        div.appendChild(configContainer);
+        // Remover após 2 segundos
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          setTimeout(() => toast.remove(), 500);
+        }, 2000);
+      }
 
-        // Close button
-        const fechar = document.createElement("button");
-        fechar.innerText = "Fechar";
-        fechar.style.cssText = `
+      configWrapper.appendChild(checkbox);
+      configWrapper.appendChild(labelElement);
+      configContainer.appendChild(configWrapper);
+    });
+
+    div.appendChild(configContainer);
+
+    // Close button
+    const fechar = document.createElement("button");
+    fechar.innerText = "Fechar";
+    fechar.style.cssText = `
             width: 100%;
             margin-top: 15px;
             padding: 10px;
@@ -234,50 +235,50 @@
             transition: background-color 0.3s ease;
         `;
 
-        fechar.addEventListener("click", () => div.remove());
-        fechar.addEventListener("mouseover", () => {
-            fechar.style.backgroundColor = "#2980b9";
-        });
-        fechar.addEventListener("mouseout", () => {
-            fechar.style.backgroundColor = "#3498db";
-        });
+    fechar.addEventListener("click", () => div.remove());
+    fechar.addEventListener("mouseover", () => {
+      fechar.style.backgroundColor = "#2980b9";
+    });
+    fechar.addEventListener("mouseout", () => {
+      fechar.style.backgroundColor = "#3498db";
+    });
 
-        div.appendChild(fechar);
-        document.body.appendChild(div);
+    div.appendChild(fechar);
+    document.body.appendChild(div);
+  }
+
+  // Função para modificar a URL nos sites Mercado Livre e Paguemenos
+  function modifyML_AM_PM_URL() {
+    // Pega a URL atual
+    let url = window.location.href;
+
+    // Procura o primeiro "#" ou "?" na URL e remove tudo após ele
+    let cleanedUrl = url.split("#")[0].split("?")[0];
+
+    // Se a URL foi alterada, redireciona para a URL limpa
+    if (url !== cleanedUrl) {
+      window.location.replace(cleanedUrl);
     }
+  }
 
-    // Função para modificar a URL nos sites Mercado Livre e Paguemenos
-    function modifyML_AM_PM_URL() {
-      // Pega a URL atual
-      let url = window.location.href;
+  function modifyAmazon() {
+    let url = new URL(window.location.href);
+    let paramsToRemove = ["tag", "linkCode", "linkId", "ref_", "language"];
+    let modified = false;
 
-      // Procura o primeiro "#" ou "?" na URL e remove tudo após ele
-      let cleanedUrl = url.split("#")[0].split("?")[0];
-
-      // Se a URL foi alterada, redireciona para a URL limpa
-      if (url !== cleanedUrl) {
-        window.location.replace(cleanedUrl);
+    paramsToRemove.forEach((param) => {
+      if (url.searchParams.has(param)) {
+        url.searchParams.delete(param);
+        modified = true;
       }
+    });
+
+    if (modified) {
+      history.replaceState(null, "", url.toString());
     }
+  }
 
-    function modifyAmazon() {
-        let url = new URL(window.location.href);
-        let paramsToRemove = ['tag', 'linkCode', 'linkId', 'ref_', 'language'];
-        let modified = false;
-
-        paramsToRemove.forEach(param => {
-            if (url.searchParams.has(param)) {
-                url.searchParams.delete(param);
-                modified = true;
-            }
-        });
-
-        if (modified) {
-            history.replaceState(null, '', url.toString());
-        }
-    }
-
-    // Função para modificar a URL no site Magazine Você
+  // Função para modificar a URL no site Magazine Você
   function modifyMagazineVoceURL() {
     // Pega a URL atual
     const urlAtual = window.location.href;
@@ -301,7 +302,8 @@
       }
     } else {
       // Se já for Magazine Você, aplica a lógica original
-      const magazineVoceRegex = /(https:\/\/www\.magazinevoce\.com\.br\/)([^\/]+)(\/.*)/;
+      const magazineVoceRegex =
+        /(https:\/\/www\.magazinevoce\.com\.br\/)([^\/]+)(\/.*)/;
       const novaUrl = urlAtual.replace(magazineVoceRegex, `$1${novoNome}$3`);
 
       if (novaUrl !== urlAtual) {
@@ -310,12 +312,12 @@
     }
   }
 
-      function magaluFreteChange() {
-      // Função para criar o botão
-      function createToggleButton() {
-          const button = document.createElement('button');
-          button.innerHTML = 'Alternar Frete';
-          button.style.cssText = `
+  function magaluFreteChange() {
+    // Função para criar o botão
+    function createToggleButton() {
+      const button = document.createElement("button");
+      button.innerHTML = "Alternar Frete";
+      button.style.cssText = `
               position: fixed;
               top: 20px;
               right: 20px;
@@ -327,318 +329,349 @@
               border-radius: 5px;
               cursor: pointer;
           `;
-          document.body.appendChild(button);
-          return button;
-      }
-
-      // Função para extrair valor numérico de uma string
-      function extractValue(str) {
-          if (!str) return 0;
-          return parseFloat(str.replace(/[^\d,]/g, '').replace(',', '.'));
-      }
-
-      // Função para formatar valor em moeda
-      function formatCurrency(value) {
-          return `R$ ${value.toFixed(2).replace('.', ',')}`;
-      }
-
-      // Função principal para alternar os valores
-      function toggleShipping() {
-          const freteElement = document.querySelector("#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-shipment > span.OrderReviewTotals-right");
-          const pixElement = document.querySelector("#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-total > span.OrderReviewTotals-right > div > span.OrderReviewTotal__cash");
-          const cartaoElement = document.querySelector("#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-total > span.OrderReviewTotals-right > div > span.OrderReviewTotal__to");
-          const totalContainer = cartaoElement?.parentElement;
-
-          if (!freteElement || !pixElement || !cartaoElement) {
-              console.log('Elementos não encontrados');
-              return;
-          }
-
-          // Lê os valores atuais
-          const freteValue = extractValue(freteElement.textContent);
-          const pixValue = extractValue(pixElement.textContent);
-          const cartaoValue = extractValue(cartaoElement.textContent);
-
-          // Toggle estado
-          const button = document.querySelector('#toggleFreteButton');
-          const isFreteRemoved = button.dataset.removed === 'true';
-
-          if (!isFreteRemoved) {
-
-          // Configura o estilo inicial do container
-          const cartaoElement = document.querySelector("#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-total > span.OrderReviewTotals-right > div > span.OrderReviewTotal__to");
-          if (cartaoElement) {
-              const totalContainer = cartaoElement.parentElement;
-              totalContainer.style.display = 'flex';
-              totalContainer.style.flexDirection = 'column';
-              totalContainer.style.gap = '8px';
-          }
-
-              // Remover frete - subtrai do valor atual
-              cartaoElement.textContent = `${formatCurrency(cartaoValue - freteValue)} no Cartão`;
-              pixElement.textContent = `${formatCurrency(pixValue - freteValue)} no Pix`;
-              button.dataset.removed = 'true';
-              button.style.backgroundColor = '#ff4444';
-          } else {
-              // Reativar frete - simplesmente recarrega os valores originais da página
-              window.location.reload();
-          }
-
-          // Mantém a quebra de linha
-          if (totalContainer) {
-              totalContainer.style.display = 'flex';
-              totalContainer.style.flexDirection = 'column';
-              totalContainer.style.gap = '8px';
-          }
-      }
-
-      // Função de inicialização
-      function init() {
-          const button = createToggleButton();
-          button.id = 'toggleFreteButton';
-          button.dataset.removed = 'false';
-          button.addEventListener('click', toggleShipping);
-      }
-
-      // Aguardar carregamento da página
-      window.addEventListener('load', function() {
-          setTimeout(init, 1000); // Aguarda 1 segundo para garantir que todos os elementos estejam carregados
-      });
+      document.body.appendChild(button);
+      return button;
     }
 
-    // Função para modificar a URL no site Terabyte
-    function modifyTerabyteURL() {
-      const url = new URL(window.location.href);
-      const searchParams = url.searchParams;
+    // Função para extrair valor numérico de uma string
+    function extractValue(str) {
+      if (!str) return 0;
+      return parseFloat(str.replace(/[^\d,]/g, "").replace(",", "."));
+    }
 
-      // Verifica se existe o parâmetro 'p'
-      if (searchParams.has("p")) {
-        // Verifica se o valor de 'p' é diferente de '1449840'
-        if (searchParams.get("p") !== "1449840") {
-          // Altera o valor do parâmetro 'p' para '1449840'
-          searchParams.set("p", "1449840");
-          // Atualiza a URL com o novo parâmetro
-          window.location.href = url.toString();
+    // Função para formatar valor em moeda
+    function formatCurrency(value) {
+      return `R$ ${value.toFixed(2).replace(".", ",")}`;
+    }
+
+    // Função principal para alternar os valores
+    function toggleShipping() {
+      const freteElement = document.querySelector(
+        "#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-shipment > span.OrderReviewTotals-right"
+      );
+      const pixElement = document.querySelector(
+        "#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-total > span.OrderReviewTotals-right > div > span.OrderReviewTotal__cash"
+      );
+      const cartaoElement = document.querySelector(
+        "#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-total > span.OrderReviewTotals-right > div > span.OrderReviewTotal__to"
+      );
+      const totalContainer = cartaoElement?.parentElement;
+
+      if (!freteElement || !pixElement || !cartaoElement) {
+        console.log("Elementos não encontrados");
+        return;
+      }
+
+      // Lê os valores atuais
+      const freteValue = extractValue(freteElement.textContent);
+      const pixValue = extractValue(pixElement.textContent);
+      const cartaoValue = extractValue(cartaoElement.textContent);
+
+      // Toggle estado
+      const button = document.querySelector("#toggleFreteButton");
+      const isFreteRemoved = button.dataset.removed === "true";
+
+      if (!isFreteRemoved) {
+        // Configura o estilo inicial do container
+        const cartaoElement = document.querySelector(
+          "#root > div > div > div.App.clearfix > div > div.OrderReview > div.OrderReview-container > div.OrderReview-rightContainer > div > div.OrderReviewTotals-total > span.OrderReviewTotals-right > div > span.OrderReviewTotal__to"
+        );
+        if (cartaoElement) {
+          const totalContainer = cartaoElement.parentElement;
+          totalContainer.style.display = "flex";
+          totalContainer.style.flexDirection = "column";
+          totalContainer.style.gap = "8px";
         }
+
+        // Remover frete - subtrai do valor atual
+        cartaoElement.textContent = `${formatCurrency(
+          cartaoValue - freteValue
+        )} no Cartão`;
+        pixElement.textContent = `${formatCurrency(
+          pixValue - freteValue
+        )} no Pix`;
+        button.dataset.removed = "true";
+        button.style.backgroundColor = "#ff4444";
       } else {
-        // Se o parâmetro 'p' não existe, adiciona-o com o valor '1449840'
-        searchParams.append("p", "1449840");
+        // Reativar frete - simplesmente recarrega os valores originais da página
+        window.location.reload();
+      }
+
+      // Mantém a quebra de linha
+      if (totalContainer) {
+        totalContainer.style.display = "flex";
+        totalContainer.style.flexDirection = "column";
+        totalContainer.style.gap = "8px";
+      }
+    }
+
+    // Função de inicialização
+    function init() {
+      const button = createToggleButton();
+      button.id = "toggleFreteButton";
+      button.dataset.removed = "false";
+      button.addEventListener("click", toggleShipping);
+    }
+
+    // Aguardar carregamento da página
+    window.addEventListener("load", function () {
+      setTimeout(init, 1000); // Aguarda 1 segundo para garantir que todos os elementos estejam carregados
+    });
+  }
+
+  // Função para modificar a URL no site Terabyte
+  function modifyTerabyteURL() {
+    const url = new URL(window.location.href);
+    const searchParams = url.searchParams;
+
+    // Verifica se existe o parâmetro 'p'
+    if (searchParams.has("p")) {
+      // Verifica se o valor de 'p' é diferente de '1449840'
+      if (searchParams.get("p") !== "1449840") {
+        // Altera o valor do parâmetro 'p' para '1449840'
+        searchParams.set("p", "1449840");
         // Atualiza a URL com o novo parâmetro
         window.location.href = url.toString();
       }
+    } else {
+      // Se o parâmetro 'p' não existe, adiciona-o com o valor '1449840'
+      searchParams.append("p", "1449840");
+      // Atualiza a URL com o novo parâmetro
+      window.location.href = url.toString();
+    }
+  }
+
+  function toUpperLowerCase() {
+    // Função para criar um botão
+    function createButton(label, onClick) {
+      const button = document.createElement("button");
+      button.innerText = label;
+      button.style.padding = "5px 8px";
+      button.style.backgroundColor = "black";
+      button.style.color = "white";
+      button.style.border = "none";
+      button.style.borderRadius = "5px";
+      button.style.cursor = "pointer";
+      button.style.marginRight = "5px"; // Espaçamento entre os botões
+      button.addEventListener("click", onClick);
+      return button;
     }
 
-    function toUpperLowerCase() {
-      // Função para criar um botão
-      function createButton(label, onClick) {
-        const button = document.createElement("button");
-        button.innerText = label;
-        button.style.padding = "5px 8px";
-        button.style.backgroundColor = "black";
-        button.style.color = "white";
-        button.style.border = "none";
-        button.style.borderRadius = "5px";
-        button.style.cursor = "pointer";
-        button.style.marginRight = "5px"; // Espaçamento entre os botões
-        button.addEventListener("click", onClick);
-        return button;
+    // Adiciona os botões ao DOM
+    const textareaContainer = document.querySelector(".col-sm-12");
+    if (textareaContainer) {
+      textareaContainer.style.position = "relative";
+
+      // Cria um contêiner para os botões
+      const buttonContainer = document.createElement("div");
+      buttonContainer.style.display = "flex"; // Flexbox para alinhar os botões lado a lado
+      buttonContainer.style.marginBottom = "10px"; // Espaçamento abaixo dos botões
+
+      const uppercaseButton = createButton("B", () => {
+        const textarea = document.getElementById("edit_textarea");
+        const text = textarea.value;
+
+        // Seleciona a primeira linha
+        const firstLineEndIndex =
+          text.indexOf("\n") !== -1 ? text.indexOf("\n") : text.length;
+        const firstLine = text.slice(0, firstLineEndIndex);
+
+        // Transforma a primeira linha em maiúsculo
+        const uppercaseFirstLine = firstLine.toUpperCase();
+
+        // Atualiza o conteúdo do textarea
+        textarea.value = uppercaseFirstLine + text.slice(firstLineEndIndex);
+      });
+
+      const lowercaseButton = createButton("b", () => {
+        const textarea = document.getElementById("edit_textarea");
+        const text = textarea.value;
+
+        // Seleciona a primeira linha
+        const firstLineEndIndex =
+          text.indexOf("\n") !== -1 ? text.indexOf("\n") : text.length;
+        const firstLine = text.slice(0, firstLineEndIndex);
+
+        // Transforma a primeira linha em minúsculo
+        const lowercaseFirstLine = firstLine.toLowerCase();
+
+        // Atualiza o conteúdo do textarea
+        textarea.value = lowercaseFirstLine + text.slice(firstLineEndIndex);
+      });
+
+      // Adiciona os botões ao contêiner
+      buttonContainer.appendChild(uppercaseButton);
+      buttonContainer.appendChild(lowercaseButton);
+
+      // Insere o contêiner de botões antes do textarea
+      textareaContainer.insertBefore(
+        buttonContainer,
+        textareaContainer.firstChild
+      );
+    }
+  }
+
+  function amazonAssociatesDateSet() {
+    //Amazon Associates Date Set
+    //description:  Sincroniza datas no relatório do Amazon Associates e ajusta resultados vendas
+    const STORAGE_KEY = "amazon_associates_last_date";
+    const RELOAD_FLAG = "amazon_associates_reload_flag";
+
+    function setResultsPerPage() {
+      const rowLimitSelect = document.querySelector(
+        "#ac-report-commission-simple-orders-tbl-rowlimit"
+      );
+      if (rowLimitSelect) {
+        rowLimitSelect.value = "100";
+        rowLimitSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+        const dropdownPrompt = document.querySelector(".a-dropdown-prompt");
+        if (dropdownPrompt) {
+          dropdownPrompt.textContent = "100";
+        }
+      } else {
+        setTimeout(setResultsPerPage, 1000);
       }
+    }
 
-      // Adiciona os botões ao DOM
-      const textareaContainer = document.querySelector(".col-sm-12");
-      if (textareaContainer) {
-        textareaContainer.style.position = "relative";
+    function clickOrderColumn() {
+      const orderColumn = document.querySelector(
+        "#ac-report-commission-simple-orders-tbl > div.a-dtt-table-container > table > thead > tr > th:nth-child(4)"
+      );
+      if (orderColumn) {
+        orderColumn.click();
+        orderColumn.click();
+      }
+    }
 
-        // Cria um contêiner para os botões
-        const buttonContainer = document.createElement("div");
-        buttonContainer.style.display = "flex"; // Flexbox para alinhar os botões lado a lado
-        buttonContainer.style.marginBottom = "10px"; // Espaçamento abaixo dos botões
+    function applyDate(selectedDate) {
+      if (!selectedDate) return;
 
-        const uppercaseButton = createButton("B", () => {
-          const textarea = document.getElementById("edit_textarea");
-          const text = textarea.value;
+      const fromInput = document.querySelector(
+        "#ac-daterange-cal-input-from-report-timeInterval"
+      );
+      const toInput = document.querySelector(
+        "#ac-daterange-cal-input-to-report-timeInterval"
+      );
 
-          // Seleciona a primeira linha
-          const firstLineEndIndex =
-            text.indexOf("\n") !== -1 ? text.indexOf("\n") : text.length;
-          const firstLine = text.slice(0, firstLineEndIndex);
+      if (fromInput && toInput) {
+        const [year, month, day] = selectedDate.split("-");
+        const formattedDate = `${month}/${day}/${year}`;
 
-          // Transforma a primeira linha em maiúsculo
-          const uppercaseFirstLine = firstLine.toUpperCase();
+        fromInput.value = formattedDate;
+        toInput.value = formattedDate;
 
-          // Atualiza o conteúdo do textarea
-          textarea.value = uppercaseFirstLine + text.slice(firstLineEndIndex);
+        ["change", "input"].forEach((eventType) => {
+          [fromInput, toInput].forEach((input) => {
+            const event = new Event(eventType, { bubbles: true });
+            input.dispatchEvent(event);
+          });
         });
 
-        const lowercaseButton = createButton("b", () => {
-          const textarea = document.getElementById("edit_textarea");
-          const text = textarea.value;
-
-          // Seleciona a primeira linha
-          const firstLineEndIndex =
-            text.indexOf("\n") !== -1 ? text.indexOf("\n") : text.length;
-          const firstLine = text.slice(0, firstLineEndIndex);
-
-          // Transforma a primeira linha em minúsculo
-          const lowercaseFirstLine = firstLine.toLowerCase();
-
-          // Atualiza o conteúdo do textarea
-          textarea.value = lowercaseFirstLine + text.slice(firstLineEndIndex);
-        });
-
-        // Adiciona os botões ao contêiner
-        buttonContainer.appendChild(uppercaseButton);
-        buttonContainer.appendChild(lowercaseButton);
-
-        // Insere o contêiner de botões antes do textarea
-        textareaContainer.insertBefore(
-          buttonContainer,
-          textareaContainer.firstChild
+        const applyBtn = document.querySelector(
+          "#ac-daterange-ok-button-report-timeInterval-announce"
         );
+        if (applyBtn) {
+          applyBtn.click();
+          setTimeout(() => {
+            setResultsPerPage();
+          }, 2000);
+        }
+
+        const customRadio = document.querySelector('input[value="custom"]');
+        if (customRadio) {
+          customRadio.checked = true;
+          customRadio.dispatchEvent(new Event("change", { bubbles: true }));
+        }
       }
     }
 
-    function amazonAssociatesDateSet() { //Amazon Associates Date Set
-      //description:  Sincroniza datas no relatório do Amazon Associates e ajusta resultados vendas
-          const STORAGE_KEY = 'amazon_associates_last_date';
-          const RELOAD_FLAG = 'amazon_associates_reload_flag';
+    function createDatePicker() {
+      const container = document.createElement("div");
+      container.style.cssText =
+        "position:fixed;top:10px;right:10px;z-index:9999;background:#fff;padding:10px;border:1px solid #ccc;border-radius:5px;";
 
-          function setResultsPerPage() {
-              const rowLimitSelect = document.querySelector('#ac-report-commission-simple-orders-tbl-rowlimit');
-              if (rowLimitSelect) {
-                  rowLimitSelect.value = '100';
-                  rowLimitSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      const datePicker = document.createElement("input");
+      datePicker.type = "date";
+      datePicker.style.marginRight = "10px";
 
-                  const dropdownPrompt = document.querySelector('.a-dropdown-prompt');
-                  if (dropdownPrompt) {
-                      dropdownPrompt.textContent = '100';
-                  }
-              } else {
-                  setTimeout(setResultsPerPage, 1000);
-              }
-          }
+      const lastDate = localStorage.getItem(STORAGE_KEY);
+      if (lastDate) {
+        datePicker.value = lastDate;
+      }
 
-          function clickOrderColumn() {
-              const orderColumn = document.querySelector("#ac-report-commission-simple-orders-tbl > div.a-dtt-table-container > table > thead > tr > th:nth-child(4)");
-              if (orderColumn) {
-                  orderColumn.click();
-                  orderColumn.click();
-              }
-          }
+      const applyButton = document.createElement("button");
+      applyButton.textContent = "Aplicar Data";
+      applyButton.style.cssText =
+        "padding:5px 10px;cursor:pointer;background:#FF9900;border:1px solid #FF9900;border-radius:3px;color:white;";
 
-          function applyDate(selectedDate) {
-              if (!selectedDate) return;
+      applyButton.addEventListener("click", () => {
+        const selectedDate = datePicker.value;
+        if (!selectedDate) return;
 
-              const fromInput = document.querySelector("#ac-daterange-cal-input-from-report-timeInterval");
-              const toInput = document.querySelector("#ac-daterange-cal-input-to-report-timeInterval");
+        localStorage.setItem(STORAGE_KEY, selectedDate);
+        localStorage.setItem(RELOAD_FLAG, "true");
 
-              if (fromInput && toInput) {
-                  const [year, month, day] = selectedDate.split('-');
-                  const formattedDate = `${month}/${day}/${year}`;
+        window.location.reload();
+      });
 
-                  fromInput.value = formattedDate;
-                  toInput.value = formattedDate;
-
-                  ['change', 'input'].forEach(eventType => {
-                      [fromInput, toInput].forEach(input => {
-                          const event = new Event(eventType, { bubbles: true });
-                          input.dispatchEvent(event);
-                      });
-                  });
-
-                  const applyBtn = document.querySelector('#ac-daterange-ok-button-report-timeInterval-announce');
-                  if (applyBtn) {
-                      applyBtn.click();
-                      setTimeout(() => {
-                          setResultsPerPage();
-                      }, 2000);
-                  }
-
-                  const customRadio = document.querySelector('input[value="custom"]');
-                  if (customRadio) {
-                      customRadio.checked = true;
-                      customRadio.dispatchEvent(new Event('change', { bubbles: true }));
-                  }
-              }
-          }
-
-          function createDatePicker() {
-              const container = document.createElement('div');
-              container.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9999;background:#fff;padding:10px;border:1px solid #ccc;border-radius:5px;';
-
-              const datePicker = document.createElement('input');
-              datePicker.type = 'date';
-              datePicker.style.marginRight = '10px';
-
-              const lastDate = localStorage.getItem(STORAGE_KEY);
-              if (lastDate) {
-                  datePicker.value = lastDate;
-              }
-
-              const applyButton = document.createElement('button');
-              applyButton.textContent = 'Aplicar Data';
-              applyButton.style.cssText = 'padding:5px 10px;cursor:pointer;background:#FF9900;border:1px solid #FF9900;border-radius:3px;color:white;';
-
-              applyButton.addEventListener('click', () => {
-                  const selectedDate = datePicker.value;
-                  if (!selectedDate) return;
-
-                  localStorage.setItem(STORAGE_KEY, selectedDate);
-                  localStorage.setItem(RELOAD_FLAG, 'true');
-
-                  window.location.reload();
-              });
-
-              container.appendChild(datePicker);
-              container.appendChild(applyButton);
-              return container;
-          }
-
-          function init() {
-              if (document.querySelector("#ac-daterange-cal-input-from-report-timeInterval")) {
-                  document.body.appendChild(createDatePicker());
-
-                  const reloadFlag = localStorage.getItem(RELOAD_FLAG);
-                  const lastDate = localStorage.getItem(STORAGE_KEY);
-
-                  if (reloadFlag === 'true' && lastDate) {
-                      localStorage.removeItem(RELOAD_FLAG);
-                      setTimeout(() => {
-                          applyDate(lastDate);
-                      }, 1000);
-                  }
-
-                  setResultsPerPage();
-              } else {
-                  setTimeout(init, 1000);
-              }
-          }
-
-          const observer = new MutationObserver((mutations) => {
-              mutations.forEach((mutation) => {
-                  if (mutation.addedNodes.length) {
-                      const rowLimitSelect = document.querySelector('#ac-report-commission-simple-orders-tbl-rowlimit');
-                      if (rowLimitSelect && rowLimitSelect.value !== '100') {
-                          setResultsPerPage();
-                      }
-                  }
-              });
-          });
-
-          window.addEventListener('load', () => {
-              observer.observe(document.body, {
-                  childList: true,
-                  subtree: true
-              });
-          });
-
-          init();
-          // Wait for table to load before clicking column
-          setTimeout(clickOrderColumn, 5000);
+      container.appendChild(datePicker);
+      container.appendChild(applyButton);
+      return container;
     }
 
-  function amazonAssociatesSearch() { // Busca Avançada em Tabela
-  //description:  Realiza busca em tabela com exibição formatada dos resultados
+    function init() {
+      if (
+        document.querySelector(
+          "#ac-daterange-cal-input-from-report-timeInterval"
+        )
+      ) {
+        document.body.appendChild(createDatePicker());
+
+        const reloadFlag = localStorage.getItem(RELOAD_FLAG);
+        const lastDate = localStorage.getItem(STORAGE_KEY);
+
+        if (reloadFlag === "true" && lastDate) {
+          localStorage.removeItem(RELOAD_FLAG);
+          setTimeout(() => {
+            applyDate(lastDate);
+          }, 1000);
+        }
+
+        setResultsPerPage();
+      } else {
+        setTimeout(init, 1000);
+      }
+    }
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+          const rowLimitSelect = document.querySelector(
+            "#ac-report-commission-simple-orders-tbl-rowlimit"
+          );
+          if (rowLimitSelect && rowLimitSelect.value !== "100") {
+            setResultsPerPage();
+          }
+        }
+      });
+    });
+
+    window.addEventListener("load", () => {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    });
+
+    init();
+    // Wait for table to load before clicking column
+    setTimeout(clickOrderColumn, 5000);
+  }
+
+  function amazonAssociatesSearch() {
+    // Busca Avançada em Tabela
+    //description:  Realiza busca em tabela com exibição formatada dos resultados
 
     // Estilos CSS
     const styles = `
@@ -741,21 +774,21 @@
     `;
 
     // Adicionar estilos ao documento
-    const styleSheet = document.createElement('style');
+    const styleSheet = document.createElement("style");
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
     // Criar e adicionar elementos da UI
-    const searchContainer = document.createElement('div');
-    searchContainer.className = 'search-container';
+    const searchContainer = document.createElement("div");
+    searchContainer.className = "search-container";
 
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.className = 'search-input';
-    searchInput.placeholder = 'Digite sua busca...';
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.className = "search-input";
+    searchInput.placeholder = "Digite sua busca...";
 
-    const resultsContainer = document.createElement('div');
-    resultsContainer.className = 'results-container';
+    const resultsContainer = document.createElement("div");
+    resultsContainer.className = "results-container";
 
     searchContainer.appendChild(searchInput);
     searchContainer.appendChild(resultsContainer);
@@ -763,82 +796,95 @@
 
     // Função para realizar a busca
     function performSearch(searchText) {
-        resultsContainer.innerHTML = '';
+      resultsContainer.innerHTML = "";
 
-        if (!searchText.trim()) return;
+      if (!searchText.trim()) return;
 
-        // Função para remover acentos
-        function normalizeText(text) {
-            return text.toLowerCase()
-                      .normalize('NFD')
-                      .replace(/[\u0300-\u036f]/g, '');
-        }
+      // Função para remover acentos
+      function normalizeText(text) {
+        return text
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      }
 
-        const keywords = searchText.toLowerCase().split(' ').filter(k => k.length > 0);
+      const keywords = searchText
+        .toLowerCase()
+        .split(" ")
+        .filter((k) => k.length > 0);
 
-        function containsAllKeywords(text) {
-            const normalizedText = normalizeText(text);
-            return keywords.every(keyword => normalizeText(keyword).split(' ').every(k => normalizedText.includes(k)));
-        }
+      function containsAllKeywords(text) {
+        const normalizedText = normalizeText(text);
+        return keywords.every((keyword) =>
+          normalizeText(keyword)
+            .split(" ")
+            .every((k) => normalizedText.includes(k))
+        );
+      }
 
-        function highlightKeywords(text) {
-            let highlighted = text;
-            keywords.forEach(keyword => {
-                const normalizedText = normalizeText(text);
-                const normalizedKeyword = normalizeText(keyword);
+      function highlightKeywords(text) {
+        let highlighted = text;
+        keywords.forEach((keyword) => {
+          const normalizedText = normalizeText(text);
+          const normalizedKeyword = normalizeText(keyword);
 
-                // Encontrar a posição real da palavra no texto original
-                let startIndex = 0;
-                while (true) {
-                    const index = normalizedText.indexOf(normalizedKeyword, startIndex);
-                    if (index === -1) break;
+          // Encontrar a posição real da palavra no texto original
+          let startIndex = 0;
+          while (true) {
+            const index = normalizedText.indexOf(normalizedKeyword, startIndex);
+            if (index === -1) break;
 
-                    // Pegar a palavra original do texto (com acentos)
-                    const originalWord = text.slice(index, index + keyword.length);
-                    // Substituir mantendo a capitalização e acentuação original
-                    highlighted = highlighted.replace(originalWord, `<span class="highlight">${originalWord}</span>`);
+            // Pegar a palavra original do texto (com acentos)
+            const originalWord = text.slice(index, index + keyword.length);
+            // Substituir mantendo a capitalização e acentuação original
+            highlighted = highlighted.replace(
+              originalWord,
+              `<span class="highlight">${originalWord}</span>`
+            );
 
-                    startIndex = index + normalizedKeyword.length;
-                }
-            });
-            return highlighted;
-        }
-
-        // Buscar nas linhas da tabela
-        const results = new Set();
-        const rows = document.querySelectorAll('tr');
-
-        rows.forEach(row => {
-            const cells = row.cells;
-            if (cells && cells.length >= 6) {
-                const title = cells[0].innerText.trim();
-                if (containsAllKeywords(title)) {
-                    results.add(row);
-                }
-            }
+            startIndex = index + normalizedKeyword.length;
+          }
         });
+        return highlighted;
+      }
 
-        // Mostrar resultados
-        results.forEach(row => {
-            const cells = row.cells;
-            if (!cells) return;
+      // Buscar nas linhas da tabela
+      const results = new Set();
+      const rows = document.querySelectorAll("tr");
 
-            const title = cells[0].innerText.trim();
-            const directOrders = cells[3].innerText.trim();
-            const indirectOrders = cells[4].innerText.trim();
-            const totalOrders = cells[5].innerText.trim();
+      rows.forEach((row) => {
+        const cells = row.cells;
+        if (cells && cells.length >= 6) {
+          const title = cells[0].innerText.trim();
+          if (containsAllKeywords(title)) {
+            results.add(row);
+          }
+        }
+      });
 
-            const resultItem = document.createElement('div');
-            resultItem.className = 'result-item';
+      // Mostrar resultados
+      results.forEach((row) => {
+        const cells = row.cells;
+        if (!cells) return;
 
-            // Extrair o ID e o título
-            const titleElement = cells[0].querySelector('.title-text');
-            const idElement = titleElement.querySelector('.item-id');
-            const id = idElement ? idElement.textContent.trim() : '';
-            const titleText = titleElement.textContent.replace(id, '').trim();
+        const title = cells[0].innerText.trim();
+        const directOrders = cells[3].innerText.trim();
+        const indirectOrders = cells[4].innerText.trim();
+        const totalOrders = cells[5].innerText.trim();
 
-            resultItem.innerHTML = `
-                <div class="result-title">${highlightKeywords(`${id} - ${titleText}`)}</div>
+        const resultItem = document.createElement("div");
+        resultItem.className = "result-item";
+
+        // Extrair o ID e o título
+        const titleElement = cells[0].querySelector(".title-text");
+        const idElement = titleElement.querySelector(".item-id");
+        const id = idElement ? idElement.textContent.trim() : "";
+        const titleText = titleElement.textContent.replace(id, "").trim();
+
+        resultItem.innerHTML = `
+                <div class="result-title">${highlightKeywords(
+                  `${id} - ${titleText}`
+                )}</div>
                 <div class="result-stats">
                     <div class="stat-item">
                         <span class="stat-label">Pedidos Diretos:</span>
@@ -855,59 +901,63 @@
                 </div>
             `;
 
-            resultItem.addEventListener('click', () => {
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                const originalBackground = row.style.backgroundColor;
-                row.style.backgroundColor = '#fff3cd';
-                setTimeout(() => {
-                    row.style.backgroundColor = originalBackground;
-                }, 2000);
-            });
-
-            resultsContainer.appendChild(resultItem);
+        resultItem.addEventListener("click", () => {
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+          const originalBackground = row.style.backgroundColor;
+          row.style.backgroundColor = "#fff3cd";
+          setTimeout(() => {
+            row.style.backgroundColor = originalBackground;
+          }, 2000);
         });
 
-        if (results.size === 0) {
-            const noResults = document.createElement('div');
-            noResults.className = 'result-item';
-            noResults.textContent = 'Nenhum resultado encontrado';
-            resultsContainer.appendChild(noResults);
-        }
+        resultsContainer.appendChild(resultItem);
+      });
+
+      if (results.size === 0) {
+        const noResults = document.createElement("div");
+        noResults.className = "result-item";
+        noResults.textContent = "Nenhum resultado encontrado";
+        resultsContainer.appendChild(noResults);
+      }
     }
 
     // Atalhos de teclado
-    document.addEventListener('keydown', function(e) {
-        // Ctrl+Shift+F para abrir/fechar a busca
-        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'f') {
-            e.preventDefault();
-            searchContainer.style.display = searchContainer.style.display === 'none' ? 'block' : 'none';
-            if (searchContainer.style.display === 'block') {
-                searchInput.focus();
-            }
+    document.addEventListener("keydown", function (e) {
+      // Ctrl+Shift+F para abrir/fechar a busca
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        searchContainer.style.display =
+          searchContainer.style.display === "none" ? "block" : "none";
+        if (searchContainer.style.display === "block") {
+          searchInput.focus();
         }
-        // Esc para fechar
-        else if (e.key === 'Escape' && searchContainer.style.display === 'block') {
-            searchContainer.style.display = 'none';
-        }
+      }
+      // Esc para fechar
+      else if (
+        e.key === "Escape" &&
+        searchContainer.style.display === "block"
+      ) {
+        searchContainer.style.display = "none";
+      }
     });
 
     // Evento de busca ao digitar
     let searchTimeout;
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => performSearch(this.value), 300);
+    searchInput.addEventListener("input", function () {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => performSearch(this.value), 300);
     });
 
     // Abrir automaticamente ao carregar a página
-    window.addEventListener('load', function() {
-        searchContainer.style.display = 'block';
-        searchInput.focus();
+    window.addEventListener("load", function () {
+      searchContainer.style.display = "block";
+      searchInput.focus();
     });
   }
 
-    function mlRelatorioExport() {
-            // Styles for the user interface
-            const styles = `
+  function mlRelatorioExport() {
+    // Styles for the user interface
+    const styles = `
                 .ml-extractor-container {
                     position: fixed;
                     top: 20px;
@@ -978,175 +1028,193 @@
                 }
             `;
 
-            // Apply styles to the page
-            GM_addStyle(styles);
+    // Apply styles to the page
+    GM_addStyle(styles);
 
-            // Define state constants
-            const STATE = {
-                IDLE: 'IDLE',
-                EXTRACTING: 'EXTRACTING',
-                NAVIGATING: 'NAVIGATING'
-            };
+    // Define state constants
+    const STATE = {
+      IDLE: "IDLE",
+      EXTRACTING: "EXTRACTING",
+      NAVIGATING: "NAVIGATING",
+    };
 
-            // Initialize or load extraction state from localStorage
-            let extractionState = JSON.parse(localStorage.getItem('mlExtractorState')) || {
-                state: STATE.IDLE,
-                dates: [],
-                currentDateIndex: -1,
-                currentPage: 1,
-                extractedData: []
-            };
+    // Initialize or load extraction state from localStorage
+    let extractionState = JSON.parse(
+      localStorage.getItem("mlExtractorState")
+    ) || {
+      state: STATE.IDLE,
+      dates: [],
+      currentDateIndex: -1,
+      currentPage: 1,
+      extractedData: [],
+    };
 
-            // Function to save current state to localStorage
-            function saveState() {
-                localStorage.setItem('mlExtractorState', JSON.stringify(extractionState));
-            }
+    // Function to save current state to localStorage
+    function saveState() {
+      localStorage.setItem("mlExtractorState", JSON.stringify(extractionState));
+    }
 
-            // Function to clear state and reset to initial values
-            function clearState() {
-                extractionState = {
-                    state: STATE.IDLE,
-                    dates: [],
-                    currentDateIndex: -1,
-                    currentPage: 1,
-                    extractedData: []
-                };
-                saveState();
-            }
+    // Function to clear state and reset to initial values
+    function clearState() {
+      extractionState = {
+        state: STATE.IDLE,
+        dates: [],
+        currentDateIndex: -1,
+        currentPage: 1,
+        extractedData: [],
+      };
+      saveState();
+    }
 
-            // Format date for MercadoLivre URL (handles timezone and date range)
-            function formatDateForUrl(date) {
-                const dateObj = new Date(date);
-                const nextDay = new Date(dateObj);
-                nextDay.setDate(nextDay.getDate() + 1);
+    // Format date for MercadoLivre URL (handles timezone and date range)
+    function formatDateForUrl(date) {
+      const dateObj = new Date(date);
+      const nextDay = new Date(dateObj);
+      nextDay.setDate(nextDay.getDate() + 1);
 
-                const formatDate = (d) => {
-                    return d.toISOString().split('.')[0] + '.000-03:00';
-                };
+      const formatDate = (d) => {
+        return d.toISOString().split(".")[0] + ".000-03:00";
+      };
 
-                return `${formatDate(dateObj)}--${formatDate(nextDay)}`;
-            }
+      return `${formatDate(dateObj)}--${formatDate(nextDay)}`;
+    }
 
-            // Generate complete URL for a specific date
-            function generateUrl(date) {
-                const baseUrl = 'https://www.mercadolivre.com.br/afiliados/dashboard';
-                const dateRange = formatDateForUrl(date);
-                return `${baseUrl}?filter_time_range=${encodeURIComponent(dateRange)}`;
-            }
+    // Generate complete URL for a specific date
+    function generateUrl(date) {
+      const baseUrl = "https://www.mercadolivre.com.br/afiliados/dashboard";
+      const dateRange = formatDateForUrl(date);
+      return `${baseUrl}?filter_time_range=${encodeURIComponent(dateRange)}`;
+    }
 
-            // Extract data from the current page's table
-            async function extractTableData() {
-            // Wait for table to load with exponential backoff
-            const waitForTable = async (maxAttempts = 5) => {
-                for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                    const table = document.querySelector('.general-orders-table');
-                    if (table) return true;
-                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
-                }
-                throw new Error('Table not found after maximum attempts');
-            };
-
-            await waitForTable();
-
-            // Select all rows except the header
-            const rows = Array.from(document.querySelectorAll('.orders-table__row'));
-            const data = [];
-
-            for (const row of rows) {
-                try {
-                    // Helper function to safely extract text content with direct selector
-                    const extractText = (selector, defaultValue = '') => {
-                        const element = row.querySelector(selector);
-                        if (!element) return defaultValue;
-
-                        // Check for value span first
-                        const valueSpan = element.querySelector('[id$="-value"]');
-                        if (valueSpan) {
-                            return valueSpan.textContent.trim();
-                        }
-
-                        return element.textContent.trim();
-                    };
-
-                    // Extract category with fallback
-                    const category = extractText('[data-title="Categoria do produto"]');
-                    if (!category) {
-                        console.warn('Missing category in row:', row);
-                        continue;
-                    }
-
-                    // Extract product information with proper selector
-                    const productLink = row.querySelector('[data-title="Produtos vendidos"] a');
-                    const productName = productLink ? productLink.textContent.trim() : '';
-                    const productUrl = productLink ? productLink.href : '';
-
-                    if (!productName) {
-                        console.warn('Missing product name in row:', row);
-                        continue;
-                    }
-
-                    // Extract units with proper selector and validation
-                    const unitsCell = row.querySelector('[data-title="Unidades vendidas"]');
-                    const unitsValue = unitsCell?.querySelector('[id$="-value"]')?.textContent.trim();
-                    const units = parseInt(unitsValue, 10);
-
-                    if (isNaN(units)) {
-                        console.warn('Invalid units value in row:', row);
-                        continue;
-                    }
-
-                    // Extract earnings with proper selector for the money amount
-                    const earningsCell = row.querySelector('[data-title="Ganhos"]');
-                    const earningsElement = earningsCell?.querySelector('.andes-money-amount');
-                    let earnings = '';
-
-                    if (earningsElement) {
-                        const currency = earningsElement.querySelector('.andes-money-amount__currency-symbol')?.textContent || 'R$';
-                        const fraction = earningsElement.querySelector('.andes-money-amount__fraction')?.textContent || '0';
-                        const cents = earningsElement.querySelector('.andes-money-amount__cents')?.textContent || '00';
-                        earnings = `${currency} ${fraction},${cents}`;
-                    } else {
-                        earnings = extractText('[data-title="Ganhos"]');
-                    }
-
-                    // Build the data object with all extracted information
-                    data.push({
-                        category,
-                        productName,
-                        productUrl,
-                        units,
-                        earnings,
-                        metadata: {
-                            extractedAt: new Date().toISOString(),
-                            rowIndex: rows.indexOf(row),
-                            hasValidData: true
-                        },
-                        raw: {
-                            unitsText: unitsValue,
-                            earningsText: earnings
-                        },
-                        date: extractionState.dates[extractionState.currentDateIndex]
-                    });
-
-                } catch (error) {
-                    console.error('Error extracting row data:', error);
-                    continue;
-                }
-            }
-
-            // Validate extracted data
-            if (data.length === 0) {
-                throw new Error('No valid data extracted from table');
-            }
-
-            console.log(`Successfully extracted ${data.length} rows of data`);
-            return data;
+    // Extract data from the current page's table
+    async function extractTableData() {
+      // Wait for table to load with exponential backoff
+      const waitForTable = async (maxAttempts = 5) => {
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          const table = document.querySelector(".general-orders-table");
+          if (table) return true;
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.pow(2, attempt) * 1000)
+          );
         }
+        throw new Error("Table not found after maximum attempts");
+      };
 
-            // Generate HTML content for the exported file
-            function generateHTML(data, date) {
-                const formattedDate = new Date(date).toLocaleDateString('pt-BR');
-                return `
+      await waitForTable();
+
+      // Select all rows except the header
+      const rows = Array.from(document.querySelectorAll(".orders-table__row"));
+      const data = [];
+
+      for (const row of rows) {
+        try {
+          // Helper function to safely extract text content with direct selector
+          const extractText = (selector, defaultValue = "") => {
+            const element = row.querySelector(selector);
+            if (!element) return defaultValue;
+
+            // Check for value span first
+            const valueSpan = element.querySelector('[id$="-value"]');
+            if (valueSpan) {
+              return valueSpan.textContent.trim();
+            }
+
+            return element.textContent.trim();
+          };
+
+          // Extract category with fallback
+          const category = extractText('[data-title="Categoria do produto"]');
+          if (!category) {
+            console.warn("Missing category in row:", row);
+            continue;
+          }
+
+          // Extract product information with proper selector
+          const productLink = row.querySelector(
+            '[data-title="Produtos vendidos"] a'
+          );
+          const productName = productLink ? productLink.textContent.trim() : "";
+          const productUrl = productLink ? productLink.href : "";
+
+          if (!productName) {
+            console.warn("Missing product name in row:", row);
+            continue;
+          }
+
+          // Extract units with proper selector and validation
+          const unitsCell = row.querySelector(
+            '[data-title="Unidades vendidas"]'
+          );
+          const unitsValue = unitsCell
+            ?.querySelector('[id$="-value"]')
+            ?.textContent.trim();
+          const units = parseInt(unitsValue, 10);
+
+          if (isNaN(units)) {
+            console.warn("Invalid units value in row:", row);
+            continue;
+          }
+
+          // Extract earnings with proper selector for the money amount
+          const earningsCell = row.querySelector('[data-title="Ganhos"]');
+          const earningsElement = earningsCell?.querySelector(
+            ".andes-money-amount"
+          );
+          let earnings = "";
+
+          if (earningsElement) {
+            const currency =
+              earningsElement.querySelector(
+                ".andes-money-amount__currency-symbol"
+              )?.textContent || "R$";
+            const fraction =
+              earningsElement.querySelector(".andes-money-amount__fraction")
+                ?.textContent || "0";
+            const cents =
+              earningsElement.querySelector(".andes-money-amount__cents")
+                ?.textContent || "00";
+            earnings = `${currency} ${fraction},${cents}`;
+          } else {
+            earnings = extractText('[data-title="Ganhos"]');
+          }
+
+          // Build the data object with all extracted information
+          data.push({
+            category,
+            productName,
+            productUrl,
+            units,
+            earnings,
+            metadata: {
+              extractedAt: new Date().toISOString(),
+              rowIndex: rows.indexOf(row),
+              hasValidData: true,
+            },
+            raw: {
+              unitsText: unitsValue,
+              earningsText: earnings,
+            },
+            date: extractionState.dates[extractionState.currentDateIndex],
+          });
+        } catch (error) {
+          console.error("Error extracting row data:", error);
+          continue;
+        }
+      }
+
+      // Validate extracted data
+      if (data.length === 0) {
+        throw new Error("No valid data extracted from table");
+      }
+
+      console.log(`Successfully extracted ${data.length} rows of data`);
+      return data;
+    }
+
+    // Generate HTML content for the exported file
+    function generateHTML(data, date) {
+      const formattedDate = new Date(date).toLocaleDateString("pt-BR");
+      return `
         <!DOCTYPE html>
         <html lang="pt-BR">
         <head>
@@ -1221,11 +1289,21 @@
                 <div class="stats">
                     <h3>Resumo do Dia</h3>
                     <p>Total de Produtos: ${data.length}</p>
-                    <p>Total de Unidades: ${data.reduce((sum, item) => sum + parseInt(item.units), 0)}</p>
-                    <p>Total de Ganhos: R$ ${data.reduce((sum, item) => {
-                        const value = parseFloat(item.earnings.replace('R$', '').replace(',', '.').trim());
+                    <p>Total de Unidades: ${data.reduce(
+                      (sum, item) => sum + parseInt(item.units),
+                      0
+                    )}</p>
+                    <p>Total de Ganhos: R$ ${data
+                      .reduce((sum, item) => {
+                        const value = parseFloat(
+                          item.earnings
+                            .replace("R$", "")
+                            .replace(",", ".")
+                            .trim()
+                        );
                         return sum + value;
-                    }, 0).toFixed(2)}</p>
+                      }, 0)
+                      .toFixed(2)}</p>
                 </div>
 
                 <input type="text" class="search" placeholder="Pesquisar produtos..." onkeyup="searchTable()">
@@ -1239,14 +1317,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${data.map(item => `
+                        ${data
+                          .map(
+                            (item) => `
                             <tr>
                                 <td>${item.category}</td>
                                 <td><a href="${item.productUrl}" target="_blank">${item.productName}</a></td>
                                 <td>${item.units}</td>
                                 <td>${item.earnings}</td>
                             </tr>
-                        `).join('')}
+                        `
+                          )
+                          .join("")}
                     </tbody>
                 </table>
             </div>
@@ -1286,104 +1368,111 @@
             </script>
         </body>
         </html>`;
-            }
+    }
 
-            // Save HTML file locally
-            function saveHTML(html, date) {
-                const blob = new Blob([html], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                const formattedDate = date.toISOString().slice(0, 10);
+    // Save HTML file locally
+    function saveHTML(html, date) {
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const formattedDate = date.toISOString().slice(0, 10);
 
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `vendas-mercadolivre-${formattedDate}.html`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `vendas-mercadolivre-${formattedDate}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
 
-            // Process current page and handle pagination
-            async function processCurrentPage() {
-                const data = await extractTableData();
-                extractionState.extractedData = extractionState.extractedData.concat(data);
+    // Process current page and handle pagination
+    async function processCurrentPage() {
+      const data = await extractTableData();
+      extractionState.extractedData =
+        extractionState.extractedData.concat(data);
 
-                const nextButton = document.querySelector('.andes-pagination__button--next:not(.andes-pagination__button--disabled)');
+      const nextButton = document.querySelector(
+        ".andes-pagination__button--next:not(.andes-pagination__button--disabled)"
+      );
 
-                if (nextButton) {
-                    extractionState.currentPage++;
-                    saveState();
-                    nextButton.querySelector('a').click();
-                    setTimeout(checkStateAndContinue, 2000);
-                } else {
-                    // Move to next date
-                    await moveToNextDate();
-                }
-            }
+      if (nextButton) {
+        extractionState.currentPage++;
+        saveState();
+        nextButton.querySelector("a").click();
+        setTimeout(checkStateAndContinue, 2000);
+      } else {
+        // Move to next date
+        await moveToNextDate();
+      }
+    }
 
-            // Modify the moveToNextDate function
-            async function moveToNextDate() {
-                // Save current date's data
-                if (extractionState.extractedData.length > 0) {
-                    const currentDate = new Date(extractionState.dates[extractionState.currentDateIndex]);
-                    const html = generateHTML(extractionState.extractedData, currentDate);
-                    saveHTML(html, currentDate);
-                }
+    // Modify the moveToNextDate function
+    async function moveToNextDate() {
+      // Save current date's data
+      if (extractionState.extractedData.length > 0) {
+        const currentDate = new Date(
+          extractionState.dates[extractionState.currentDateIndex]
+        );
+        const html = generateHTML(extractionState.extractedData, currentDate);
+        saveHTML(html, currentDate);
+      }
 
-                // Move to next date
-                extractionState.currentDateIndex++;
-                extractionState.currentPage = 1;
-                extractionState.extractedData = [];
+      // Move to next date
+      extractionState.currentDateIndex++;
+      extractionState.currentPage = 1;
+      extractionState.extractedData = [];
 
-                if (extractionState.currentDateIndex < extractionState.dates.length) {
-                    // Navigate to next date
-                    const nextDate = extractionState.dates[extractionState.currentDateIndex];
-                    const nextUrl = generateUrl(nextDate);
-                    extractionState.state = STATE.NAVIGATING;
-                    saveState();
-                    window.location.href = nextUrl;
-                } else {
-                    // Finished all dates - navigate to dashboard
-                    clearState();
-                    updateStatus('Extração concluída! Redirecionando para o dashboard...');
-                    window.location.href = 'https://www.mercadolivre.com.br/afiliados/dashboard';
-                }
-            }
-            // Check current state and continue extraction process
-            async function checkStateAndContinue() {
-                if (extractionState.state === STATE.EXTRACTING) {
-                    await processCurrentPage();
-                } else if (extractionState.state === STATE.NAVIGATING) {
-                    extractionState.state = STATE.EXTRACTING;
-                    saveState();
-                    await processCurrentPage();
-                }
-            }
+      if (extractionState.currentDateIndex < extractionState.dates.length) {
+        // Navigate to next date
+        const nextDate =
+          extractionState.dates[extractionState.currentDateIndex];
+        const nextUrl = generateUrl(nextDate);
+        extractionState.state = STATE.NAVIGATING;
+        saveState();
+        window.location.href = nextUrl;
+      } else {
+        // Finished all dates - navigate to dashboard
+        clearState();
+        updateStatus("Extração concluída! Redirecionando para o dashboard...");
+        window.location.href =
+          "https://www.mercadolivre.com.br/afiliados/dashboard";
+      }
+    }
+    // Check current state and continue extraction process
+    async function checkStateAndContinue() {
+      if (extractionState.state === STATE.EXTRACTING) {
+        await processCurrentPage();
+      } else if (extractionState.state === STATE.NAVIGATING) {
+        extractionState.state = STATE.EXTRACTING;
+        saveState();
+        await processCurrentPage();
+      }
+    }
 
-            // Start the extraction process
-            async function startExtraction(dates) {
-                if (dates.length === 0) return;
+    // Start the extraction process
+    async function startExtraction(dates) {
+      if (dates.length === 0) return;
 
-                extractionState = {
-                    state: STATE.NAVIGATING,
-                    dates: dates,
-                    currentDateIndex: 0,
-                    currentPage: 1,
-                    extractedData: []
-                };
-                saveState();
+      extractionState = {
+        state: STATE.NAVIGATING,
+        dates: dates,
+        currentDateIndex: 0,
+        currentPage: 1,
+        extractedData: [],
+      };
+      saveState();
 
-                // Navigate to first date
-                const firstUrl = generateUrl(dates[0]);
-                window.location.href = firstUrl;
-            }
+      // Navigate to first date
+      const firstUrl = generateUrl(dates[0]);
+      window.location.href = firstUrl;
+    }
 
-            // Create the control panel UI
-            function createControlPanel() {
-                const container = document.createElement('div');
-                container.className = 'ml-extractor-container';
+    // Create the control panel UI
+    function createControlPanel() {
+      const container = document.createElement("div");
+      container.className = "ml-extractor-container";
 
-                container.innerHTML = `
+      container.innerHTML = `
                     <div class="ml-extractor-title">Extrair Dados de Vendas</div>
                     <div class="ml-date-container">
                         <input type="date" class="ml-date-input" id="dateInput">
@@ -1394,160 +1483,210 @@
                     <div class="ml-status" id="status"></div>
                 `;
 
-                const dateList = new Set();
+      const dateList = new Set();
 
-                // Add date button handler
-                container.querySelector('#addDateBtn').addEventListener('click', () => {
-                    const dateInput = container.querySelector('#dateInput');
-                    const date = dateInput.value;
+      // Add date button handler
+      container.querySelector("#addDateBtn").addEventListener("click", () => {
+        const dateInput = container.querySelector("#dateInput");
+        const date = dateInput.value;
 
-                    if (date && !dateList.has(date)) {
-                        dateList.add(date);
-                        updateDateList();
-                    }
-                });
+        if (date && !dateList.has(date)) {
+          dateList.add(date);
+          updateDateList();
+        }
+      });
 
-                // Extract button handler
-                container.querySelector('#extractBtn').addEventListener('click', async () => {
-                    const dates = Array.from(dateList);
-                    if (dates.length === 0) {
-                        alert('Adicione pelo menos uma data para extrair.');
-                        return;
-                    }
+      // Extract button handler
+      container
+        .querySelector("#extractBtn")
+        .addEventListener("click", async () => {
+          const dates = Array.from(dateList);
+          if (dates.length === 0) {
+            alert("Adicione pelo menos uma data para extrair.");
+            return;
+          }
 
-                    const extractBtn = container.querySelector('#extractBtn');
-                    extractBtn.disabled = true;
-                    updateStatus('Iniciando extração...');
+          const extractBtn = container.querySelector("#extractBtn");
+          extractBtn.disabled = true;
+          updateStatus("Iniciando extração...");
 
-                    try {
-                        startExtraction(dates);
-                    } catch (error) {
-                        console.error('Error starting extraction:', error);
-                        updateStatus('Erro ao iniciar extração. Tente novamente.');
-                        extractBtn.disabled = false;
-                    }
-                });
+          try {
+            startExtraction(dates);
+          } catch (error) {
+            console.error("Error starting extraction:", error);
+            updateStatus("Erro ao iniciar extração. Tente novamente.");
+            extractBtn.disabled = false;
+          }
+        });
 
-                // Function to update the date list display
-                function updateDateList() {
-                    const dateListElement = container.querySelector('#dateList');
-                    dateListElement.innerHTML = '';
+      // Function to update the date list display
+      function updateDateList() {
+        const dateListElement = container.querySelector("#dateList");
+        dateListElement.innerHTML = "";
 
-                    [...dateList].sort().forEach(date => {
-                        const div = document.createElement('div');
-                        div.className = 'ml-date-item';
-                        div.innerHTML = `
+        [...dateList].sort().forEach((date) => {
+          const div = document.createElement("div");
+          div.className = "ml-date-item";
+          div.innerHTML = `
                             <span>${date}</span>
                             <span class="ml-remove-date" data-date="${date}">×</span>
                         `;
-                        dateListElement.appendChild(div);
-                    });
-
-                    // Add remove handlers
-                    dateListElement.querySelectorAll('.ml-remove-date').forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            const date = e.target.dataset.date;
-                            dateList.delete(date);
-                            updateDateList();
-                        });
-                    });
-                }
-
-                document.body.appendChild(container);
-            }
-
-            // Function to update status display
-            function updateStatus(message) {
-                const statusElement = document.querySelector('#status');
-                if (statusElement) {
-                    statusElement.textContent = message;
-                }
-            }
-
-            // Function to handle errors during extraction
-            function handleExtractionError(error) {
-                console.error('Extraction error:', error);
-                updateStatus('Erro durante a extração. Tentando continuar...');
-
-                // Try to recover by moving to next date
-                setTimeout(async () => {
-                    await moveToNextDate();
-                }, 2000);
-            }
-
-            // Function to validate date format
-            function isValidDate(dateString) {
-                const date = new Date(dateString);
-                return date instanceof Date && !isNaN(date);
-            }
-
-            // Initialize script
-            function initialize() {
-                createControlPanel();
-                // Check if we're in the middle of extraction
-                if (extractionState.state !== STATE.IDLE) {
-                    // Add a small delay to ensure page is loaded
-                    setTimeout(() => {
-                        updateStatus(`Continuando extração da data ${extractionState.dates[extractionState.currentDateIndex]}...`);
-                        checkStateAndContinue();
-                    }, 2000);
-                } else {
-                    createControlPanel();
-                }
-
-                // Add window error handler
-                window.addEventListener('error', (event) => {
-                    console.error('Window error:', event.error);
-                    handleExtractionError(event.error);
-                });
-
-                // Add unload handler to save state
-                window.addEventListener('beforeunload', () => {
-                    if (extractionState.state !== STATE.IDLE) {
-                        saveState();
-                    }
-                });
-            }
-        initialize();
-    }
-
-    // Execução das funções baseadas nas configurações
-    function executeConfiguredFeatures() {
-        const hostname = window.location.hostname;
-
-
-        const siteConfigs = [
-            { condition: getConfig("configAtivaAMZ") && hostname === "www.amazon.com.br", func: modifyAmazon },
-            { condition: getConfig("configAtivaML") && hostname === "www.mercadolivre.com.br", func: modifyML_AM_PM_URL },
-            { condition: getConfig("configAtivaPM") && hostname === "www.paguemenos.com.br", func: modifyML_AM_PM_URL },
-            { condition: getConfig("configAtivaNike") && hostname === "www.nike.com.br", func: modifyML_AM_PM_URL },
-            { condition: getConfig("configAtivaTB") && hostname === "www.terabyteshop.com.br", func: modifyTerabyteURL },
-            { condition: getConfig("configAtivaMV") && (hostname === "www.magazinevoce.com.br" || hostname === "www.magazineluiza.com.br"), func: modifyMagazineVoceURL },
-            { condition: getConfig("configAtivaMagaluF") && hostname === "sacola.magazinevoce.com.br", func: magaluFreteChange },
-            { condition: getConfig("configAtivaAP") && hostname === "pt.anotepad.com", func: toUpperLowerCase },
-            { condition: getConfig("configAtivaAdS") && hostname === "associados.amazon.com.br", func: amazonAssociatesDateSet },
-            { condition: getConfig("configAtivaAS") && hostname === "associados.amazon.com.br", func: amazonAssociatesSearch },
-            {
-                condition: getConfig("configAtivaMLrel") && 
-                           location.hostname === "www.mercadolivre.com.br" && 
-                           location.pathname.startsWith("/afiliados/dashboard"),
-                func: mlRelatorioExport
-              }            
-        ];
-
-        siteConfigs.forEach(config => {
-            if (config.condition) {
-                try {
-                    config.func();
-                } catch (error) {
-                    console.error(`Erro ao executar função para ${hostname}:`, error);
-                }
-            }
+          dateListElement.appendChild(div);
         });
-    }
-    // Executar funções quando o DOM estiver completamente carregado
-    document.addEventListener("DOMContentLoaded", executeConfiguredFeatures);
-    // Register menu command
-    GM_registerMenuCommand("Abrir Configurações", criarInterface, { title: "Clique para abrir as configurações do script." });
 
-  })();
+        // Add remove handlers
+        dateListElement.querySelectorAll(".ml-remove-date").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const date = e.target.dataset.date;
+            dateList.delete(date);
+            updateDateList();
+          });
+        });
+      }
+
+      document.body.appendChild(container);
+    }
+
+    // Function to update status display
+    function updateStatus(message) {
+      const statusElement = document.querySelector("#status");
+      if (statusElement) {
+        statusElement.textContent = message;
+      }
+    }
+
+    // Function to handle errors during extraction
+    function handleExtractionError(error) {
+      console.error("Extraction error:", error);
+      updateStatus("Erro durante a extração. Tentando continuar...");
+
+      // Try to recover by moving to next date
+      setTimeout(async () => {
+        await moveToNextDate();
+      }, 2000);
+    }
+
+    // Function to validate date format
+    function isValidDate(dateString) {
+      const date = new Date(dateString);
+      return date instanceof Date && !isNaN(date);
+    }
+
+    // Initialize script
+    function initialize() {
+      createControlPanel();
+      // Check if we're in the middle of extraction
+      if (extractionState.state !== STATE.IDLE) {
+        // Add a small delay to ensure page is loaded
+        setTimeout(() => {
+          updateStatus(
+            `Continuando extração da data ${
+              extractionState.dates[extractionState.currentDateIndex]
+            }...`
+          );
+          checkStateAndContinue();
+        }, 2000);
+      } else {
+        createControlPanel();
+      }
+
+      // Add window error handler
+      window.addEventListener("error", (event) => {
+        console.error("Window error:", event.error);
+        handleExtractionError(event.error);
+      });
+
+      // Add unload handler to save state
+      window.addEventListener("beforeunload", () => {
+        if (extractionState.state !== STATE.IDLE) {
+          saveState();
+        }
+      });
+    }
+    initialize();
+  }
+
+  // Execução das funções baseadas nas configurações
+  function executeConfiguredFeatures() {
+    const hostname = window.location.hostname;
+
+    const siteConfigs = [
+      {
+        condition:
+          getConfig("configAtivaAMZ") && hostname === "www.amazon.com.br",
+        func: modifyAmazon,
+      },
+      {
+        condition:
+          getConfig("configAtivaML") && hostname === "www.mercadolivre.com.br",
+        func: modifyML_AM_PM_URL,
+      },
+      {
+        condition:
+          getConfig("configAtivaPM") && hostname === "www.paguemenos.com.br",
+        func: modifyML_AM_PM_URL,
+      },
+      {
+        condition:
+          getConfig("configAtivaNike") && hostname === "www.nike.com.br",
+        func: modifyML_AM_PM_URL,
+      },
+      {
+        condition:
+          getConfig("configAtivaTB") && hostname === "www.terabyteshop.com.br",
+        func: modifyTerabyteURL,
+      },
+      {
+        condition:
+          getConfig("configAtivaMV") &&
+          (hostname === "www.magazinevoce.com.br" ||
+            hostname === "www.magazineluiza.com.br"),
+        func: modifyMagazineVoceURL,
+      },
+      {
+        condition:
+          getConfig("configAtivaMagaluF") &&
+          hostname === "sacola.magazinevoce.com.br",
+        func: magaluFreteChange,
+      },
+      {
+        condition: getConfig("configAtivaAP") && hostname === "pt.anotepad.com",
+        func: toUpperLowerCase,
+      },
+      {
+        condition:
+          getConfig("configAtivaAdS") &&
+          hostname === "associados.amazon.com.br",
+        func: amazonAssociatesDateSet,
+      },
+      {
+        condition:
+          getConfig("configAtivaAS") && hostname === "associados.amazon.com.br",
+        func: amazonAssociatesSearch,
+      },
+      {
+        condition:
+          getConfig("configAtivaMLrel") &&
+          location.hostname === "www.mercadolivre.com.br" &&
+          location.pathname.startsWith("/afiliados/dashboard"),
+        func: mlRelatorioExport,
+      },
+    ];
+
+    siteConfigs.forEach((config) => {
+      if (config.condition) {
+        try {
+          config.func();
+        } catch (error) {
+          console.error(`Erro ao executar função para ${hostname}:`, error);
+        }
+      }
+    });
+  }
+  // Executar funções quando o DOM estiver completamente carregado
+  document.addEventListener("DOMContentLoaded", executeConfiguredFeatures);
+  // Register menu command
+  GM_registerMenuCommand("Abrir Configurações", criarInterface, {
+    title: "Clique para abrir as configurações do script.",
+  });
+})();
