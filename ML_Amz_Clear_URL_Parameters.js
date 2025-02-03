@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name          ML, Amz. Clear URL Parameters
-// @namespace     Clear URL Parameters
-// @version       1.7
+// @name          Analyst Toolbox
+// @namespace     Pobre's Toolbox
+// @version       1.8
 // @icon          https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ML_Amz_Clear_URL_Parameters.ico
-// @description   Remove parâmetros desnecessários de URLs de sites especificos
+// @description   Ferramentas do analista
 // @author        DayLight
 //
 // ============== MERCADO LIVRE ==============
@@ -64,8 +64,8 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 //
-// @downloadURL   https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ML_Amz_Clear_URL_Parameters.js
-// @updateURL     https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/ML_Amz_Clear_URL_Parameters.js
+// @downloadURL   https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/Analyst_Tools.js
+// @updateURL     https://raw.githubusercontent.com/rdayltx/userscripts/refs/heads/master/Analyst_Tools.js
 // ==/UserScript==
 
 (function () {
