@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Scripts do Pobre
 // @namespace     Pobre's Toolbox
-// @version       2.3
+// @version       2.6
 // @icon          https://raw.githubusercontent.com/rdayltx/userscripts/master/pobre_tools.ico
 // @description   Ferramentas do analista
 // @author        DayLight
@@ -83,8 +83,8 @@
     configAtivaMV: true, //  Redirecionar Magalu para o Pobre
     configAtivaMagaluF: true, //  Botão remover Frete Magalu
     configAtivaAP: false, //  Botões maiusculo e minusculo no Anotepad
-    configAtivaAdS: true, //  Busca avançada Relatório Amazon
-    configAtivaAS: true, //  Busca data Relatórios Amazon
+    configAtivaAdS: false, //  Busca avançada Relatório Amazon
+    configAtivaAS: false, //  Busca data Relatórios Amazon
     configAtivaMLrel: false, //  Exporta Relatório Mercado Livre
     configAtivaPobreS: true, // Adiciona funcionalidades no encurtador do pobre
   };
@@ -825,29 +825,24 @@
         );
       }
 
+      // Função para destacar palavras-chave no texto
       function highlightKeywords(text) {
+        if (!text) return "";
         let highlighted = text;
-        keywords.forEach((keyword) => {
-          const normalizedText = normalizeText(text);
-          const normalizedKeyword = normalizeText(keyword);
 
-          // Encontrar a posição real da palavra no texto original
-          let startIndex = 0;
-          while (true) {
-            const index = normalizedText.indexOf(normalizedKeyword, startIndex);
-            if (index === -1) break;
+        // Ordena as keywords por tamanho (maior para menor) para evitar problemas de sobreposição
+        const sortedKeywords = [...keywords].sort(
+          (a, b) => b.length - a.length
+        );
 
-            // Pegar a palavra original do texto (com acentos)
-            const originalWord = text.slice(index, index + keyword.length);
-            // Substituir mantendo a capitalização e acentuação original
-            highlighted = highlighted.replace(
-              originalWord,
-              `<span class="highlight">${originalWord}</span>`
-            );
+        for (const keyword of sortedKeywords) {
+          const regex = new RegExp(`(${keyword})`, "gi");
+          highlighted = highlighted.replace(
+            regex,
+            '<span class="highlight">$1</span>'
+          );
+        }
 
-            startIndex = index + normalizedKeyword.length;
-          }
-        });
         return highlighted;
       }
 
@@ -959,654 +954,326 @@
   }
 
   function mlRelatorioExport() {
-    // Styles for the user interface
-    const styles = `
-                .ml-extractor-container {
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: white;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    z-index: 9999;
-                    width: 300px;
-                }
-                .ml-extractor-title {
-                    font-size: 16px;
-                    font-weight: bold;
-                    margin-bottom: 15px;
-                }
-                .ml-date-container {
-                    margin-bottom: 15px;
-                }
-                .ml-date-input {
-                    width: 100%;
-                    padding: 8px;
-                    margin-bottom: 8px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                }
-                .ml-extractor-button {
-                    background: #3483FA;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    width: 100%;
-                    margin-bottom: 8px;
-                }
-                .ml-extractor-button:disabled {
-                    background: #ccc;
-                    cursor: not-allowed;
-                }
-                .ml-status {
-                    font-size: 14px;
-                    color: #666;
-                    margin-top: 10px;
-                }
-                .ml-date-list {
-                    margin-top: 10px;
-                    max-height: 150px;
-                    overflow-y: auto;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                    padding: 8px;
-                }
-                .ml-date-item {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 4px 0;
-                    border-bottom: 1px solid #eee;
-                }
-                .ml-date-item:last-child {
-                    border-bottom: none;
-                }
-                .ml-remove-date {
-                    color: red;
-                    cursor: pointer;
-                    font-weight: bold;
-                }
-            `;
+    const script = document.createElement("script");
+    script.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js";
+    script.onload = mainMlExport;
+    document.head.appendChild(script);
 
-    // Apply styles to the page
-    GM_addStyle(styles);
+    function mainMlExport() {
+      let allData = [];
+      let currentPage = 0;
 
-    // Define state constants
-    const STATE = {
-      IDLE: "IDLE",
-      EXTRACTING: "EXTRACTING",
-      NAVIGATING: "NAVIGATING",
-    };
+      // Format date for MercadoLivre URL
+      function formatDateForUrl(date) {
+        const dateObj = new Date(date);
+        const nextDay = new Date(dateObj);
+        nextDay.setDate(nextDay.getDate() + 1);
 
-    // Initialize or load extraction state from localStorage
-    let extractionState = JSON.parse(
-      localStorage.getItem("mlExtractorState")
-    ) || {
-      state: STATE.IDLE,
-      dates: [],
-      currentDateIndex: -1,
-      currentPage: 1,
-      extractedData: [],
-    };
+        const formatDate = (d) => {
+          return d.toISOString().split(".")[0] + ".000-03:00";
+        };
 
-    // Function to save current state to localStorage
-    function saveState() {
-      localStorage.setItem("mlExtractorState", JSON.stringify(extractionState));
-    }
+        return `${formatDate(dateObj)}--${formatDate(nextDay)}`;
+      }
 
-    // Function to clear state and reset to initial values
-    function clearState() {
-      extractionState = {
-        state: STATE.IDLE,
-        dates: [],
-        currentDateIndex: -1,
-        currentPage: 1,
-        extractedData: [],
-      };
-      saveState();
-    }
+      // Generate complete URL for a specific date
+      function generateUrl(date) {
+        const baseUrl = "https://www.mercadolivre.com.br/afiliados/dashboard";
+        const dateRange = formatDateForUrl(date);
+        return `${baseUrl}?filter_time_range=${encodeURIComponent(dateRange)}`;
+      }
 
-    // Format date for MercadoLivre URL (handles timezone and date range)
-    function formatDateForUrl(date) {
-      const dateObj = new Date(date);
-      const nextDay = new Date(dateObj);
-      nextDay.setDate(nextDay.getDate() + 1);
+      // Create date selection modal
+      function createDateModal() {
+        const modal = document.createElement("div");
+        modal.style.cssText = `
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              background: white;
+              padding: 20px;
+              border-radius: 8px;
+              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+              z-index: 10000;
+          `;
 
-      const formatDate = (d) => {
-        return d.toISOString().split(".")[0] + ".000-03:00";
-      };
+        const datePicker = document.createElement("input");
+        datePicker.type = "date";
+        datePicker.style.marginBottom = "15px";
+        datePicker.style.padding = "5px";
 
-      return `${formatDate(dateObj)}--${formatDate(nextDay)}`;
-    }
+        const confirmButton = document.createElement("button");
+        confirmButton.textContent = "Confirmar";
+        confirmButton.style.cssText = `
+              background: #007BFF;
+              color: white;
+              border: none;
+              padding: 8px 15px;
+              border-radius: 4px;
+              cursor: pointer;
+              margin-right: 10px;
+          `;
 
-    // Generate complete URL for a specific date
-    function generateUrl(date) {
-      const baseUrl = "https://www.mercadolivre.com.br/afiliados/dashboard";
-      const dateRange = formatDateForUrl(date);
-      return `${baseUrl}?filter_time_range=${encodeURIComponent(dateRange)}`;
-    }
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Cancelar";
+        cancelButton.style.cssText = `
+              background: #6c757d;
+              color: white;
+              border: none;
+              padding: 8px 15px;
+              border-radius: 4px;
+              cursor: pointer;
+          `;
 
-    // Extract data from the current page's table
-    async function extractTableData() {
-      // Wait for table to load with exponential backoff
-      const waitForTable = async (maxAttempts = 5) => {
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          const table = document.querySelector(".general-orders-table");
-          if (table) return true;
-          await new Promise((resolve) =>
-            setTimeout(resolve, Math.pow(2, attempt) * 1000)
-          );
-        }
-        throw new Error("Table not found after maximum attempts");
-      };
+        modal.appendChild(datePicker);
+        modal.appendChild(document.createElement("br"));
+        modal.appendChild(confirmButton);
+        modal.appendChild(cancelButton);
 
-      await waitForTable();
+        confirmButton.onclick = () => {
+          if (datePicker.value) {
+            localStorage.setItem("ml_export_date", datePicker.value);
+            localStorage.setItem("ml_should_export", "true");
+            window.location.href = generateUrl(datePicker.value);
+          }
+        };
 
-      // Select all rows except the header
-      const rows = Array.from(document.querySelectorAll(".orders-table__row"));
-      const data = [];
+        cancelButton.onclick = () => {
+          document.body.removeChild(modal);
+          document.body.removeChild(overlay);
+        };
 
-      for (const row of rows) {
-        try {
-          // Helper function to safely extract text content with direct selector
-          const extractText = (selector, defaultValue = "") => {
-            const element = row.querySelector(selector);
-            if (!element) return defaultValue;
+        const overlay = document.createElement("div");
+        overlay.style.cssText = `
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: rgba(0,0,0,0.5);
+              z-index: 9999;
+          `;
 
-            // Check for value span first
-            const valueSpan = element.querySelector('[id$="-value"]');
-            if (valueSpan) {
-              return valueSpan.textContent.trim();
+        document.body.appendChild(overlay);
+        document.body.appendChild(modal);
+      }
+
+      // Function to check if we should auto-export
+      function checkAndAutoExport() {
+        if (localStorage.getItem("ml_should_export") === "true") {
+          localStorage.removeItem("ml_should_export"); // Clear the flag
+          setTimeout(() => {
+            allData = [];
+            showLoading("Extraindo dados...");
+            try {
+              scrapeTable();
+              goToNextPage();
+            } catch (error) {
+              alert(`Erro durante a extração: ${error.message}`);
+              hideLoading();
             }
-
-            return element.textContent.trim();
-          };
-
-          // Extract category with fallback
-          const category = extractText('[data-title="Categoria do produto"]');
-          if (!category) {
-            console.warn("Missing category in row:", row);
-            continue;
-          }
-
-          // Extract product information with proper selector
-          const productLink = row.querySelector(
-            '[data-title="Produtos vendidos"] a'
-          );
-          const productName = productLink ? productLink.textContent.trim() : "";
-          const productUrl = productLink ? productLink.href : "";
-
-          if (!productName) {
-            console.warn("Missing product name in row:", row);
-            continue;
-          }
-
-          // Extract units with proper selector and validation
-          const unitsCell = row.querySelector(
-            '[data-title="Unidades vendidas"]'
-          );
-          const unitsValue = unitsCell
-            ?.querySelector('[id$="-value"]')
-            ?.textContent.trim();
-          const units = parseInt(unitsValue, 10);
-
-          if (isNaN(units)) {
-            console.warn("Invalid units value in row:", row);
-            continue;
-          }
-
-          // Extract earnings with proper selector for the money amount
-          const earningsCell = row.querySelector('[data-title="Ganhos"]');
-          const earningsElement = earningsCell?.querySelector(
-            ".andes-money-amount"
-          );
-          let earnings = "";
-
-          if (earningsElement) {
-            const currency =
-              earningsElement.querySelector(
-                ".andes-money-amount__currency-symbol"
-              )?.textContent || "R$";
-            const fraction =
-              earningsElement.querySelector(".andes-money-amount__fraction")
-                ?.textContent || "0";
-            const cents =
-              earningsElement.querySelector(".andes-money-amount__cents")
-                ?.textContent || "00";
-            earnings = `${currency} ${fraction},${cents}`;
-          } else {
-            earnings = extractText('[data-title="Ganhos"]');
-          }
-
-          // Build the data object with all extracted information
-          data.push({
-            category,
-            productName,
-            productUrl,
-            units,
-            earnings,
-            metadata: {
-              extractedAt: new Date().toISOString(),
-              rowIndex: rows.indexOf(row),
-              hasValidData: true,
-            },
-            raw: {
-              unitsText: unitsValue,
-              earningsText: earnings,
-            },
-            date: extractionState.dates[extractionState.currentDateIndex],
-          });
-        } catch (error) {
-          console.error("Error extracting row data:", error);
-          continue;
+          }, 2000); // Wait for page to load
         }
       }
 
-      // Validate extracted data
-      if (data.length === 0) {
-        throw new Error("No valid data extracted from table");
+      function showLoading(message) {
+        let loadingDiv = document.getElementById("loadingIndicator");
+        if (!loadingDiv) {
+          loadingDiv = document.createElement("div");
+          loadingDiv.id = "loadingIndicator";
+          loadingDiv.style.cssText = `
+                  position: fixed;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  padding: 20px;
+                  background-color: #000;
+                  color: #fff;
+                  z-index: 10000;
+                  border-radius: 8px;
+              `;
+          document.body.appendChild(loadingDiv);
+        }
+        loadingDiv.textContent = message;
       }
 
-      console.log(`Successfully extracted ${data.length} rows of data`);
-      return data;
-    }
-
-    // Generate HTML content for the exported file
-    function generateHTML(data, date) {
-      const formattedDate = new Date(date).toLocaleDateString("pt-BR");
-      return `
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Dados de Vendas MercadoLivre - ${formattedDate}</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 0;
-                    padding: 20px;
-                    background: #f5f5f5;
-                }
-                .container {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    background: white;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                .header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 20px;
-                }
-                .search {
-                    width: 100%;
-                    padding: 8px;
-                    margin-bottom: 20px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                    font-size: 16px;
-                }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 20px;
-                }
-                th, td {
-                    padding: 12px;
-                    border: 1px solid #ddd;
-                    text-align: left;
-                }
-                th {
-                    background: #f8f9fa;
-                    cursor: pointer;
-                }
-                tr:hover {
-                    background: #f8f9fa;
-                }
-                .date {
-                    color: #666;
-                    font-size: 14px;
-                }
-                .stats {
-                    margin: 20px 0;
-                    padding: 15px;
-                    background: #f8f9fa;
-                    border-radius: 4px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Dados de Vendas MercadoLivre</h1>
-                    <span class="date">Data: ${formattedDate}</span>
-                </div>
-
-                <div class="stats">
-                    <h3>Resumo do Dia</h3>
-                    <p>Total de Produtos: ${data.length}</p>
-                    <p>Total de Unidades: ${data.reduce(
-                      (sum, item) => sum + parseInt(item.units),
-                      0
-                    )}</p>
-                    <p>Total de Ganhos: R$ ${data
-                      .reduce((sum, item) => {
-                        const value = parseFloat(
-                          item.earnings
-                            .replace("R$", "")
-                            .replace(",", ".")
-                            .trim()
-                        );
-                        return sum + value;
-                      }, 0)
-                      .toFixed(2)}</p>
-                </div>
-
-                <input type="text" class="search" placeholder="Pesquisar produtos..." onkeyup="searchTable()">
-                <table id="salesTable">
-                    <thead>
-                        <tr>
-                            <th onclick="sortTable(0)">Categoria</th>
-                            <th onclick="sortTable(1)">Produto</th>
-                            <th onclick="sortTable(2)">Unidades</th>
-                            <th onclick="sortTable(3)">Ganhos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data
-                          .map(
-                            (item) => `
-                            <tr>
-                                <td>${item.category}</td>
-                                <td><a href="${item.productUrl}" target="_blank">${item.productName}</a></td>
-                                <td>${item.units}</td>
-                                <td>${item.earnings}</td>
-                            </tr>
-                        `
-                          )
-                          .join("")}
-                    </tbody>
-                </table>
-            </div>
-
-            <script>
-                // Search functionality
-                function searchTable() {
-                    const input = document.querySelector('.search');
-                    const filter = input.value.toLowerCase();
-                    const rows = document.querySelectorAll('#salesTable tbody tr');
-
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(filter) ? '' : 'none';
-                    });
-                }
-
-                // Sorting functionality
-                function sortTable(column) {
-                    const table = document.getElementById('salesTable');
-                    const tbody = table.querySelector('tbody');
-                    const rows = Array.from(tbody.querySelectorAll('tr'));
-                    const isNumeric = column === 2; // Units column
-
-                    rows.sort((a, b) => {
-                        const aValue = a.cells[column].textContent.trim();
-                        const bValue = b.cells[column].textContent.trim();
-
-                        if (isNumeric) {
-                            return parseInt(aValue) - parseInt(bValue);
-                        }
-                        return aValue.localeCompare(bValue);
-                    });
-
-                    rows.forEach(row => tbody.appendChild(row));
-                }
-            </script>
-        </body>
-        </html>`;
-    }
-
-    // Save HTML file locally
-    function saveHTML(html, date) {
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const formattedDate = date.toISOString().slice(0, 10);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `vendas-mercadolivre-${formattedDate}.html`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
-
-    // Process current page and handle pagination
-    async function processCurrentPage() {
-      const data = await extractTableData();
-      extractionState.extractedData =
-        extractionState.extractedData.concat(data);
-
-      const nextButton = document.querySelector(
-        ".andes-pagination__button--next:not(.andes-pagination__button--disabled)"
-      );
-
-      if (nextButton) {
-        extractionState.currentPage++;
-        saveState();
-        nextButton.querySelector("a").click();
-        setTimeout(checkStateAndContinue, 2000);
-      } else {
-        // Move to next date
-        await moveToNextDate();
+      function hideLoading() {
+        const loadingDiv = document.getElementById("loadingIndicator");
+        if (loadingDiv) loadingDiv.remove();
       }
-    }
 
-    // Modify the moveToNextDate function
-    async function moveToNextDate() {
-      // Save current date's data
-      if (extractionState.extractedData.length > 0) {
-        const currentDate = new Date(
-          extractionState.dates[extractionState.currentDateIndex]
+      function waitForElement(selector, timeout = 5000) {
+        return new Promise((resolve, reject) => {
+          const interval = setInterval(() => {
+            const element = document.querySelector(selector);
+            if (element) {
+              clearInterval(interval);
+              resolve(element);
+            }
+          }, 100);
+          setTimeout(() => {
+            clearInterval(interval);
+            reject(new Error("Elemento não encontrado no tempo limite."));
+          }, timeout);
+        });
+      }
+
+      function scrapeTable() {
+        const table = document.querySelector(
+          ".andes-table.general-orders-table"
         );
-        const html = generateHTML(extractionState.extractedData, currentDate);
-        saveHTML(html, currentDate);
-      }
-
-      // Move to next date
-      extractionState.currentDateIndex++;
-      extractionState.currentPage = 1;
-      extractionState.extractedData = [];
-
-      if (extractionState.currentDateIndex < extractionState.dates.length) {
-        // Navigate to next date
-        const nextDate =
-          extractionState.dates[extractionState.currentDateIndex];
-        const nextUrl = generateUrl(nextDate);
-        extractionState.state = STATE.NAVIGATING;
-        saveState();
-        window.location.href = nextUrl;
-      } else {
-        // Finished all dates - navigate to dashboard
-        clearState();
-        updateStatus("Extração concluída! Redirecionando para o dashboard...");
-        window.location.href =
-          "https://www.mercadolivre.com.br/afiliados/dashboard";
-      }
-    }
-    // Check current state and continue extraction process
-    async function checkStateAndContinue() {
-      if (extractionState.state === STATE.EXTRACTING) {
-        await processCurrentPage();
-      } else if (extractionState.state === STATE.NAVIGATING) {
-        extractionState.state = STATE.EXTRACTING;
-        saveState();
-        await processCurrentPage();
-      }
-    }
-
-    // Start the extraction process
-    async function startExtraction(dates) {
-      if (dates.length === 0) return;
-
-      extractionState = {
-        state: STATE.NAVIGATING,
-        dates: dates,
-        currentDateIndex: 0,
-        currentPage: 1,
-        extractedData: [],
-      };
-      saveState();
-
-      // Navigate to first date
-      const firstUrl = generateUrl(dates[0]);
-      window.location.href = firstUrl;
-    }
-
-    // Create the control panel UI
-    function createControlPanel() {
-      const container = document.createElement("div");
-      container.className = "ml-extractor-container";
-
-      container.innerHTML = `
-                    <div class="ml-extractor-title">Extrair Dados de Vendas</div>
-                    <div class="ml-date-container">
-                        <input type="date" class="ml-date-input" id="dateInput">
-                        <button class="ml-extractor-button" id="addDateBtn">Adicionar Data</button>
-                    </div>
-                    <div class="ml-date-list" id="dateList"></div>
-                    <button class="ml-extractor-button" id="extractBtn">Extrair Dados Selecionados</button>
-                    <div class="ml-status" id="status"></div>
-                `;
-
-      const dateList = new Set();
-
-      // Add date button handler
-      container.querySelector("#addDateBtn").addEventListener("click", () => {
-        const dateInput = container.querySelector("#dateInput");
-        const date = dateInput.value;
-
-        if (date && !dateList.has(date)) {
-          dateList.add(date);
-          updateDateList();
+        if (!table) {
+          alert("Tabela não encontrada. Verifique se está na página correta.");
+          return;
         }
-      });
 
-      // Extract button handler
-      container
-        .querySelector("#extractBtn")
-        .addEventListener("click", async () => {
-          const dates = Array.from(dateList);
-          if (dates.length === 0) {
-            alert("Adicione pelo menos uma data para extrair.");
-            return;
-          }
-
-          const extractBtn = container.querySelector("#extractBtn");
-          extractBtn.disabled = true;
-          updateStatus("Iniciando extração...");
-
-          try {
-            startExtraction(dates);
-          } catch (error) {
-            console.error("Error starting extraction:", error);
-            updateStatus("Erro ao iniciar extração. Tente novamente.");
-            extractBtn.disabled = false;
-          }
-        });
-
-      // Function to update the date list display
-      function updateDateList() {
-        const dateListElement = container.querySelector("#dateList");
-        dateListElement.innerHTML = "";
-
-        [...dateList].sort().forEach((date) => {
-          const div = document.createElement("div");
-          div.className = "ml-date-item";
-          div.innerHTML = `
-                            <span>${date}</span>
-                            <span class="ml-remove-date" data-date="${date}">×</span>
-                        `;
-          dateListElement.appendChild(div);
-        });
-
-        // Add remove handlers
-        dateListElement.querySelectorAll(".ml-remove-date").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            const date = e.target.dataset.date;
-            dateList.delete(date);
-            updateDateList();
-          });
-        });
-      }
-
-      document.body.appendChild(container);
-    }
-
-    // Function to update status display
-    function updateStatus(message) {
-      const statusElement = document.querySelector("#status");
-      if (statusElement) {
-        statusElement.textContent = message;
-      }
-    }
-
-    // Function to handle errors during extraction
-    function handleExtractionError(error) {
-      console.error("Extraction error:", error);
-      updateStatus("Erro durante a extração. Tentando continuar...");
-
-      // Try to recover by moving to next date
-      setTimeout(async () => {
-        await moveToNextDate();
-      }, 2000);
-    }
-
-    // Function to validate date format
-    function isValidDate(dateString) {
-      const date = new Date(dateString);
-      return date instanceof Date && !isNaN(date);
-    }
-
-    // Initialize script
-    function initialize() {
-      createControlPanel();
-      // Check if we're in the middle of extraction
-      if (extractionState.state !== STATE.IDLE) {
-        // Add a small delay to ensure page is loaded
-        setTimeout(() => {
-          updateStatus(
-            `Continuando extração da data ${
-              extractionState.dates[extractionState.currentDateIndex]
-            }...`
+        // Extrai cabeçalhos (apenas na primeira página)
+        if (currentPage === 0) {
+          const headers = [];
+          const headerCells = table.querySelectorAll(
+            "thead.andes-table__head th"
           );
-          checkStateAndContinue();
-        }, 2000);
-      } else {
-        createControlPanel();
+          headerCells.forEach((header, index) => {
+            if (index !== 0 && index !== 3) {
+              // Ignora colunas A (índice 0) e C (índice 3)
+              headers.push(header.textContent.trim());
+            }
+          });
+          allData.push(headers); // Adiciona os cabeçalhos como primeira linha na planilha
+          currentPage = 1;
+        }
+
+        // Extrai linhas de dados
+        const rows = table.querySelectorAll(
+          ".andes-table__row.orders-table__row"
+        );
+        const pageData = [];
+        rows.forEach((row) => {
+          const rowData = [];
+          row.querySelectorAll("td").forEach((cell, index) => {
+            if (index !== 0 && index !== 3) {
+              // Ignora colunas A (índice 0) e D (índice 3)
+              rowData.push(cell.textContent.trim());
+            }
+          });
+          pageData.push(rowData);
+        });
+
+        allData = allData.concat(pageData);
       }
 
-      // Add window error handler
-      window.addEventListener("error", (event) => {
-        console.error("Window error:", event.error);
-        handleExtractionError(event.error);
-      });
-
-      // Add unload handler to save state
-      window.addEventListener("beforeunload", () => {
-        if (extractionState.state !== STATE.IDLE) {
-          saveState();
+      async function goToNextPage() {
+        try {
+          const nextButton = document.querySelector(
+            ".andes-pagination__button--next"
+          );
+          if (
+            nextButton &&
+            !nextButton.classList.contains("andes-pagination__button--disabled")
+          ) {
+            nextButton.querySelector("a").click();
+            await new Promise((resolve) => setTimeout(resolve, 3000)); // Espera para o carregamento
+            scrapeTable();
+            await goToNextPage(); // Chama recursivamente até não haver próxima página
+          } else {
+            exportToXLSX();
+          }
+        } catch (error) {
+          alert(`Erro ao navegar para a próxima página: ${error.message}`);
         }
-      });
+      }
+
+      function getDateRangeFromSpan() {
+        const spanElement = document.querySelector(
+          "#\\:Rmlicq\\:-display-values"
+        );
+        if (spanElement) {
+          return spanElement.textContent.trim().replace(/\s+/g, "_");
+        }
+        return null;
+      }
+
+      function exportToXLSX() {
+        const dateRange = getDateRangeFromSpan();
+        const fileName = dateRange
+          ? `Métricas_ML_${dateRange}.xlsx`
+          : `Métricas_ML_${new Date().getDate().toString().padStart(2, "0")}-${(
+              new Date().getMonth() + 1
+            )
+              .toString()
+              .padStart(2, "0")}.xlsx`;
+
+        // Processa os dados para remover "R$" e configurar colunas como números
+        const processedData = allData.map((row, index) => {
+          if (index === 0) return row; // Mantém os cabeçalhos inalterados
+
+          // Converte a coluna "B" (índice 1) em número inteiro, se aplicável
+          if (row[1]) {
+            const intValue = parseInt(row[1], 10);
+            row[1] = !isNaN(intValue) ? intValue : row[1];
+          }
+
+          return row;
+        });
+
+        // Cria a planilha a partir dos dados processados
+        const worksheet = XLSX.utils.aoa_to_sheet(processedData);
+
+        // Formata células das coluna "B" como números
+        const range = XLSX.utils.decode_range(worksheet["!ref"]);
+        for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+          const colC = XLSX.utils.encode_cell({ r: R, c: 1 }); // Coluna "B" (índice 1)
+
+          if (worksheet[colC] && typeof worksheet[colC].v === "number") {
+            worksheet[colC].t = "n"; // Tipo "n" para números
+          }
+        }
+
+        // Adiciona largura automática e largura fixa para a coluna "A"
+        const colWidths = processedData[0].map((_, index) => {
+          if (index === 0) return { width: 80 }; // Define largura fixa para a coluna "A"
+          return { width: 18 }; // Largura padrão para outras colunas
+        });
+        worksheet["!cols"] = colWidths;
+
+        // Adiciona filtros automáticos
+        worksheet["!autofilter"] = {
+          ref: XLSX.utils.encode_range(range),
+        };
+
+        // Cria o workbook e adiciona a planilha
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Tabela");
+
+        // Salva o arquivo Excel
+        XLSX.writeFile(workbook, fileName);
+        alert("Exportação concluída!");
+        hideLoading();
+      }
+
+      // Create export button
+      const exportButton = document.createElement("button");
+      exportButton.textContent = "Exportar Tabela";
+      exportButton.style.cssText = `
+          position: fixed;
+          top: 10px;
+          right: 10px;
+          z-index: 9999;
+          padding: 10px;
+          background-color: #007BFF;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+      `;
+      exportButton.onclick = createDateModal;
+      document.body.appendChild(exportButton);
+
+      // Check for auto-export on page load
+      checkAndAutoExport();
     }
-    initialize();
   }
 
   //    Adiciona funcionalidades no encurtador do pobre
