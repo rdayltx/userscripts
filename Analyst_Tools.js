@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Scripts do Pobre
 // @namespace     Pobre's Toolbox
-// @version       2.6
+// @version       2.8
 // @icon          https://raw.githubusercontent.com/rdayltx/userscripts/master/pobre_tools.ico
 // @description   Ferramentas do analista
 // @author        DayLight
@@ -66,8 +66,8 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 //
-// @downloadURL   https://raw.githubusercontent.com/rdayltx/userscripts/master/Analyst_Tools.js
-// @updateURL     https://raw.githubusercontent.com/rdayltx/userscripts/master/Analyst_Tools.js
+// @downloadURL   https://raw.githubusercontent.com/rdayltx/tools-scripts/main/scripts-loader.user.js
+// @updateURL     https://raw.githubusercontent.com/rdayltx/tools-scripts/main/scripts-loader.user.js
 // ==/UserScript==
 
 (function () {
